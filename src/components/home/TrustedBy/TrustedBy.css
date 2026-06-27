@@ -1,32 +1,66 @@
-.trusted {
-  padding: var(--sp-10) 0;
+/* ── Trusted By ─────────────────────────────────────────────── */
+.trusted-by {
+  padding: 36px 0;
+  background: #FAFAFA;
   border-bottom: 1px solid var(--border);
 }
-.trusted__label {
+
+.trusted-by__label {
   text-align: center;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--text-subtle);
-  letter-spacing: 0.03em;
-  margin-bottom: var(--sp-6);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
 }
-.trusted__logos {
+
+.trusted-by__logos {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-8);
+  gap: 8px;
   flex-wrap: wrap;
 }
-.trusted__logo-item {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-subtle);
-  letter-spacing: -0.01em;
-  transition: color var(--t);
+
+.trusted-by__logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  transition: border-color var(--t), box-shadow var(--t);
+  cursor: default;
 }
-.trusted__logo-item:hover { color: var(--text-muted); }
+
+.trusted-by__logo:hover {
+  border-color: #D1D5DB;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.trusted-by__logo-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.trusted-by__logo-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
 
 @media (max-width: 640px) {
-  .trusted__logos { gap: var(--sp-5); }
-  .trusted__logo-item { font-size: 13px; }
+  .trusted-by__logos {
+    gap: 6px;
+  }
+  .trusted-by__logo {
+    padding: 7px 14px;
+  }
+  .trusted-by__logo-name {
+    font-size: 12px;
+  }
 }

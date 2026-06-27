@@ -1,42 +1,52 @@
 :root {
+  --font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-    /* Brand Colors */
-  
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-  
-    --secondary: #0f172a;
-  
-    --accent: #ef4444;
-  
-    --success: #22c55e;
-  
-    --warning: #f59e0b;
-  
-    /* Background */
-  
-    --bg-primary: #050816;
-    --bg-secondary: #0b1120;
-    --bg-card: rgba(255,255,255,0.05);
-  
-    /* Text */
-  
-    --text-primary: #ffffff;
-    --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
-  
-    /* Borders */
-  
-    --border: rgba(255,255,255,0.08);
-  
-    /* Radius */
-  
-    --radius: 18px;
-  
-    /* Shadows */
-  
-    --shadow:
-  
-        0 15px 35px rgba(0,0,0,.35);
-  
-  }
+  /* Brand colors */
+  --blue: #075AD8;
+  --blue-dark: #054BB5;
+  --blue-light: #EFF6FF;
+  --red: #E0010B;
+  --slate: #2C3E58;
+
+  /* Background */
+  --bg: #F8FAFC;
+  --bg-white: #FFFFFF;
+  --bg-section: #F3F4F6;
+
+  /* Text */
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --text-subtle: #6B7280;
+  --text-white: #FFFFFF;
+
+  /* Borders */
+  --border: #E5E7EB;
+  --border-soft: #DBE2EA;
+
+  /* Semantic */
+  --green: #16A34A;
+  --green-light: #ECFDF5;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* Transitions */
+  --t: 180ms ease;
+  --t-slow: 260ms ease;
+}

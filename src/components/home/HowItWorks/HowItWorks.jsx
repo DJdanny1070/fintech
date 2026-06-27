@@ -1,102 +1,54 @@
+import { UserPlus, Link2, ShoppingBag, BarChart3 } from "lucide-react";
 import "./HowItWorks.css";
 
 const STEPS = [
   {
     num: "01",
+    icon: UserPlus,
     title: "Create your account",
-    desc: "Register in under 2 minutes. Choose your role — Individual, Business, Buyer, or Seller — and get a personalised dashboard immediately. No credit card required.",
-    visual: (
-      <div className="hiw-visual hiw-visual--register">
-        <div className="hiw-visual__card">
-          <div className="hiw-visual__card-label">Create Account</div>
-          <div className="hiw-visual__input-mock">
-            <div className="hiw-visual__input-line"></div>
-          </div>
-          <div className="hiw-visual__input-mock">
-            <div className="hiw-visual__input-line" style={{width:"70%"}}></div>
-          </div>
-          <div className="hiw-visual__roles">
-            {["Individual","Business","Buyer","Seller"].map((r,i) => (
-              <div key={r} className={`hiw-visual__role ${i===0?"active":""}`}>{r}</div>
-            ))}
-          </div>
-          <div className="hiw-visual__btn">Get Started Free →</div>
-        </div>
-      </div>
-    ),
+    desc: "Register in under 2 minutes. Choose your role — Individual, Business, Buyer, or Seller — and get a purpose-built dashboard instantly.",
   },
   {
     num: "02",
+    icon: Link2,
     title: "Connect your finances",
-    desc: "Link your bank account, set up your wallet, and import existing portfolios. We use bank-grade encryption and never store your credentials.",
-    visual: (
-      <div className="hiw-visual hiw-visual--connect">
-        <div className="hiw-visual__card">
-          <div className="hiw-visual__card-label">Connect Bank</div>
-          {["HDFC Bank •••• 4521","ICICI Bank •••• 8823","SBI Savings •••• 9012"].map((b,i) => (
-            <div key={b} className={`hiw-visual__bank-row ${i===0?"active":""}`}>
-              <div className="hiw-visual__bank-icon">🏦</div>
-              <span>{b}</span>
-              {i === 0 && (
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" strokeWidth="2.5" strokeLinecap="round">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    ),
+    desc: "Link your bank account, set up your wallet, and import existing portfolios. All data is encrypted with AES-256.",
   },
   {
     num: "03",
-    title: "Transact with blockchain security",
-    desc: "Every action — payment, purchase, or listing — is automatically recorded on the CresoX blockchain. You get a verifiable receipt for everything.",
-    visual: (
-      <div className="hiw-visual hiw-visual--tx">
-        <div className="hiw-visual__card">
-          <div className="hiw-visual__card-label">Transaction Confirmed</div>
-          <div className="hiw-visual__tx-amount">+₹12,500</div>
-          <div className="hiw-visual__tx-from">from Rahul Kumar</div>
-          <div className="hiw-visual__tx-hash">
-            <span>Hash:</span>
-            <code>0x4f2a8e1b...c91d</code>
-          </div>
-          <div className="hiw-visual__tx-status">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2.5" strokeLinecap="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            Blockchain Verified
-          </div>
-        </div>
-      </div>
-    ),
+    icon: ShoppingBag,
+    title: "Transact with confidence",
+    desc: "Every payment, purchase, or listing is blockchain-verified. You receive an immutable receipt for every action.",
+  },
+  {
+    num: "04",
+    icon: BarChart3,
+    title: "Measure everything",
+    desc: "Access real-time analytics, portfolio performance, tax summaries, and custom reports — all in one exportable dashboard.",
   },
 ];
 
 function HowItWorks() {
   return (
-    <section className="hiw section section--white">
+    <section className="hiw">
       <div className="container">
         <div className="section-header">
-          <div className="tag">How It Works</div>
+          <span className="tag">How It Works</span>
           <h2 className="h2">Up and running in minutes.</h2>
           <p className="lead">
-            Getting started with CresoX is straightforward. No lengthy onboarding. No paperwork.
+            No lengthy onboarding. No paperwork. Register, connect, and start transacting.
           </p>
         </div>
 
-        <div className="hiw__steps">
-          {STEPS.map((step, i) => (
-            <div className={`hiw__step ${i % 2 === 1 ? "hiw__step--reverse" : ""}`} key={step.num}>
-              <div className="hiw__step-copy">
-                <div className="hiw__step-num">{step.num}</div>
-                <h3 className="h3">{step.title}</h3>
-                <p style={{fontSize:15,color:"var(--text-secondary)",lineHeight:1.7,marginTop:"var(--sp-3)"}}>
-                  {step.desc}
-                </p>
+        <div className="hiw__grid">
+          {STEPS.map(({ num, icon: Icon, title, desc }) => (
+            <div className="hiw__step" key={num}>
+              <div className="hiw__step-num">{num}</div>
+              <div className="hiw__step-icon">
+                <Icon size={18} />
               </div>
-              <div className="hiw__step-visual">{step.visual}</div>
+              <h3 className="hiw__step-title">{title}</h3>
+              <p className="hiw__step-desc">{desc}</p>
             </div>
           ))}
         </div>

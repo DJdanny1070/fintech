@@ -1,74 +1,133 @@
-.solutions { border-bottom: 1px solid var(--border); }
+/* ── Solutions / Financial Services ────────────────────────── */
+.solutions {
+  padding: 96px 0;
+  background: var(--bg-section);
+  border-bottom: 1px solid var(--border);
+}
 
 .solutions__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--sp-4);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
 .solutions__card {
-  background: var(--bg-white);
+  background: #fff;
   border: 1px solid var(--border);
-  border-left: 3px solid transparent;
-  border-radius: var(--r-lg);
-  padding: var(--sp-6);
+  border-radius: 14px;
+  padding: 32px 28px;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-4);
-  /* Selective dynamic: only on this card type */
-  transition: border-color var(--t), border-left-color var(--t);
-}
-.solutions__card:hover {
-  border-color: var(--border-hover);
-  border-left-color: var(--blue);
+  transition: border-color var(--t), box-shadow var(--t), transform var(--t-slow);
+  position: relative;
+  overflow: hidden;
 }
 
-.solutions__card-header {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
+.solutions__card:hover {
+  border-color: #D1D5DB;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
 }
-.solutions__icon { font-size: 28px; }
-.solutions__title { font-size: 16px; font-weight: 700; color: var(--text-primary); }
-.solutions__subtitle { font-size: 12px; color: var(--text-muted); margin-top: 1px; font-weight: 500; }
-.solutions__desc {
+
+.solutions__card--featured {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+
+.solutions__card--featured:hover {
+  border-color: var(--blue-dark);
+  box-shadow: 0 8px 32px rgba(7,90,216,0.25);
+}
+
+.solutions__card--featured .solutions__card-title,
+.solutions__card--featured .solutions__card-desc,
+.solutions__card--featured .solutions__features li {
+  color: rgba(255,255,255,0.9);
+}
+
+.solutions__card--featured .solutions__check {
+  color: rgba(255,255,255,0.7);
+}
+
+.solutions__card-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--blue);
+  background: var(--blue-light);
+  border-radius: 100px;
+  padding: 4px 12px;
+  margin-bottom: 18px;
+  width: fit-content;
+}
+
+.solutions__card--featured .solutions__card-tag {
+  color: var(--blue);
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.solutions__card-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.solutions__card-desc {
   font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.65;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
   flex: 1;
 }
+
 .solutions__features {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: 8px;
+  margin-bottom: 24px;
 }
+
 .solutions__features li {
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
-  font-size: 13px;
+  gap: 8px;
+  font-size: 13.5px;
   font-weight: 500;
   color: var(--text-secondary);
 }
-.solutions__features li svg { color: var(--blue); flex-shrink: 0; }
 
-.solutions__cta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  font-weight: 600;
+.solutions__check {
   color: var(--blue);
-  padding-top: var(--sp-4);
-  border-top: 1px solid var(--border);
-  transition: gap var(--t);
-}
-.solutions__cta svg {
-  transition: transform var(--t);
-}
-.solutions__card:hover .solutions__cta svg {
-  transform: translateX(4px);
+  flex-shrink: 0;
 }
 
-@media (max-width: 1100px) { .solutions__grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 640px)  { .solutions__grid { grid-template-columns: 1fr; } }
+.solutions__card--featured .solutions__check {
+  color: rgba(255,255,255,0.85);
+}
+
+.solutions__card--featured .btn-primary {
+  background: #fff;
+  color: var(--blue);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.solutions__card--featured .btn-primary:hover {
+  background: rgba(255,255,255,0.92);
+}
+
+@media (max-width: 900px) {
+  .solutions {
+    padding: 72px 0;
+  }
+  .solutions__grid {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}

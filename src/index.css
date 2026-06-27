@@ -13,6 +13,10 @@
   --bg-white:      #FFFFFF;
   --bg-section:    #F3F4F6;
   --bg-dark:       #1A2332;    /* footer */
+  --text-dark-secondary: #9CA3AF;
+  --text-dark-muted:     #6B7280;
+  --border-dark:         rgba(255,255,255,0.08);
+
 
   /* Borders */
   --border:        #E5E7EB;

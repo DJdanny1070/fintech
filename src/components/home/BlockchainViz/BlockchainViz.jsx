@@ -1,54 +1,81 @@
+import { ShieldCheck } from "lucide-react";
 import "./BlockchainViz.css";
 
 const STEPS = [
-  { num:"01", title:"Initiate",    desc:"User authorises the transaction with their CresoX credentials." },
-  { num:"02", title:"Sign",        desc:"A cryptographic signature is generated and attached to the request." },
-  { num:"03", title:"Hash",        desc:"The transaction receives a unique, tamper-proof SHA-256 hash." },
-  { num:"04", title:"Broadcast",   desc:"The signed transaction is broadcast to the CresoX validator network." },
-  { num:"05", title:"Confirmed",   desc:"Consensus reached. Transaction is written to an immutable block." },
+  {
+    num: "01", title: "Initiate",
+    desc: "User authorises the transaction with CresoX credentials.",
+    hash: "0xa3f8...d291",
+  },
+  {
+    num: "02", title: "Sign",
+    desc: "A cryptographic signature is generated and attached.",
+    hash: "sig:7c94...b403",
+  },
+  {
+    num: "03", title: "Hash",
+    desc: "The transaction is assigned a unique SHA-256 hash.",
+    hash: "sha256:f2c8...7a1e",
+  },
+  {
+    num: "04", title: "Broadcast",
+    desc: "The signed transaction is broadcast to validator nodes.",
+    hash: "tx:0x8f12...c9d4",
+  },
+  {
+    num: "05", title: "Confirmed",
+    desc: "Consensus reached. Permanently written to an immutable block.",
+    hash: "block:#482910",
+  },
 ];
 
 function BlockchainViz() {
   return (
-    <section className="bcv section section--gray" id="blockchain">
-      <div className="container">
-        <div className="bcv__layout">
-          {/* Left */}
-          <div className="bcv__copy">
-            <div className="tag">Blockchain Security</div>
-            <h2 className="h2">Every transaction permanently verified.</h2>
-            <p className="lead" style={{marginTop:"var(--sp-4)"}}>
-              CresoX writes every payment, agreement, and marketplace order
-              to an immutable blockchain. No tampering. No hidden fees.
-              Full auditability.
-            </p>
-            <div className="bcv__stats">
-              {[
-                { value:"12,847", label:"Transactions verified today" },
-                { value:"1.2s",   label:"Average confirmation time" },
-                { value:"99.98%", label:"Network uptime" },
-              ].map(s => (
-                <div className="bcv__stat" key={s.label}>
-                  <div className="bcv__stat-value">{s.value}</div>
-                  <div className="bcv__stat-label">{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+    <section className="blockchain" id="blockchain">
+      <div className="container blockchain__layout">
+        {/* Left copy */}
+        <div className="blockchain__copy">
+          <span className="tag">Blockchain Security</span>
+          <h2 className="h2" style={{ marginTop: 12 }}>Every transaction permanently verified.</h2>
+          <p className="lead">
+            CresoX writes every payment and marketplace order to an immutable
+            distributed ledger. No tampering. No hidden fees. Full auditability
+            — always.
+          </p>
 
-          {/* Right — horizontal stepper */}
-          <div className="bcv__stepper">
+          <div className="blockchain__stats">
+            {[
+              { value: "12,847",  label: "Transactions verified\ntoday" },
+              { value: "1.2s",    label: "Average confirmation\ntime" },
+              { value: "99.98%",  label: "Network\nuptime" },
+            ].map((s) => (
+              <div className="blockchain__stat" key={s.label}>
+                <div className="blockchain__stat-value">{s.value}</div>
+                <div className="blockchain__stat-label" style={{ whiteSpace: "pre-line" }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right — steps panel */}
+        <div className="blockchain__steps-wrap">
+          <div className="blockchain__steps-header">
+            <span className="blockchain__steps-title">Transaction lifecycle</span>
+            <span className="blockchain__steps-badge">
+              <ShieldCheck size={11} /> Verified
+            </span>
+          </div>
+          <div className="blockchain__steps">
             {STEPS.map((step, i) => (
-              <div className="bcv__step" key={step.num}>
-                <div className="bcv__step-left">
-                  <div className="bcv__step-circle">
-                    <span>{step.num}</span>
-                  </div>
-                  {i < STEPS.length - 1 && <div className="bcv__step-line"></div>}
+              <div className="blockchain__step" key={step.num}>
+                <div className="blockchain__step-left">
+                  <div className="blockchain__step-circle">{step.num}</div>
+                  {i < STEPS.length - 1 && <div className="blockchain__step-line" />}
                 </div>
-                <div className="bcv__step-content">
-                  <div className="bcv__step-title">{step.title}</div>
-                  <div className="bcv__step-desc">{step.desc}</div>
+                <div className="blockchain__step-content">
+                  <div className="blockchain__step-title">{step.title}</div>
+                  <div className="blockchain__step-desc">{step.desc}</div>
+                  <span className="blockchain__step-hash">{step.hash}</span>
                 </div>
               </div>
             ))}
