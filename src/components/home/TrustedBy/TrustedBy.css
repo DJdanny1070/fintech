@@ -1,0 +1,32 @@
+.trusted {
+  padding: var(--sp-10) 0;
+  border-bottom: 1px solid var(--border);
+}
+.trusted__label {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-subtle);
+  letter-spacing: 0.03em;
+  margin-bottom: var(--sp-6);
+}
+.trusted__logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+}
+.trusted__logo-item {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-subtle);
+  letter-spacing: -0.01em;
+  transition: color var(--t);
+}
+.trusted__logo-item:hover { color: var(--text-muted); }
+
+@media (max-width: 640px) {
+  .trusted__logos { gap: var(--sp-5); }
+  .trusted__logo-item { font-size: 13px; }
+}

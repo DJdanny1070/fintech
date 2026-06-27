@@ -1,0 +1,164 @@
+/* ── Auth Pages v3 — Light Mode ─────────────────────────────── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  background: var(--bg);
+}
+
+/* Left panel — brand */
+.auth-page__panel {
+  width: 420px;
+  background: var(--slate);
+  padding: var(--sp-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  flex-shrink: 0;
+}
+.auth-panel__logo {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.auth-panel__tagline {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin-top: auto;
+}
+.auth-panel__sub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.65;
+}
+.auth-panel__features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: auto;
+  padding-top: var(--sp-8);
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.auth-panel__feature {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: 14px;
+  color: rgba(255,255,255,0.65);
+  font-weight: 500;
+}
+.auth-panel__feature svg { color: #4FA3FF; flex-shrink: 0; }
+
+/* Right — form */
+.auth-page__form-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-8) var(--sp-6);
+  overflow-y: auto;
+}
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+}
+.auth-card--wide { max-width: 520px; }
+
+.auth-card__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-6);
+  transition: color var(--t);
+}
+.auth-card__back:hover { color: var(--text-primary); }
+
+.auth-card__header { margin-bottom: var(--sp-7); }
+.auth-card__title { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-primary); }
+.auth-card__sub   { font-size: 15px; color: var(--text-muted); margin-top: var(--sp-2); }
+
+/* Social Button */
+.auth-social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: 11px;
+  background: var(--bg-white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--t);
+  margin-bottom: var(--sp-5);
+}
+.auth-social-btn:hover { border-color: var(--border-hover); }
+
+/* Form */
+.auth-form { display: flex; flex-direction: column; gap: var(--sp-4); }
+.auth-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); }
+.auth-field { display: flex; flex-direction: column; gap: var(--sp-1); }
+.auth-field__row { display: flex; align-items: center; justify-content: space-between; }
+.auth-forgot { font-size: 13px; font-weight: 500; color: var(--blue); }
+.auth-forgot:hover { color: var(--blue-dark); }
+
+.auth-terms { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.auth-link { color: var(--blue); font-weight: 600; }
+
+.auth-submit {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+  font-size: 15px;
+  margin-top: var(--sp-2);
+}
+
+.auth-card__footer {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--border);
+}
+
+/* Role picker */
+.auth-roles { margin-bottom: var(--sp-2); }
+.auth-roles__grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+.auth-role-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 4px;
+  background: var(--bg-white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color var(--t);
+}
+.auth-role-btn:hover { border-color: var(--border-hover); }
+.auth-role-btn--active { border-color: var(--blue); background: var(--blue-light); }
+.auth-role-btn__label { font-size: 10.5px; font-weight: 600; color: var(--text-primary); text-align: center; }
+.auth-role-btn__desc  { font-size: 9px; color: var(--text-muted); text-align: center; }
+
+@media (max-width: 900px) { .auth-page__panel { display: none; } }
+@media (max-width: 560px) {
+  .auth-card { max-width: 100%; }
+  .auth-form-row { grid-template-columns: 1fr; }
+  .auth-roles__grid { grid-template-columns: repeat(3, 1fr); }
+}

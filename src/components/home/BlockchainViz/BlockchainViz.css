@@ -1,0 +1,89 @@
+.bcv { border-bottom: 1px solid var(--border); }
+.bcv__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-16);
+  align-items: start;
+}
+
+/* Stats */
+.bcv__stats {
+  display: flex;
+  gap: var(--sp-8);
+  margin-top: var(--sp-8);
+  padding-top: var(--sp-8);
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.bcv__stat-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+.bcv__stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* Stepper */
+.bcv__stepper { display: flex; flex-direction: column; }
+.bcv__step {
+  display: flex;
+  gap: var(--sp-4);
+}
+.bcv__step-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.bcv__step-circle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--bg-white);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: border-color var(--t), background var(--t);
+}
+.bcv__step-circle span {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: color var(--t);
+}
+/* Selective dynamic: step hover */
+.bcv__step:hover .bcv__step-circle {
+  border-color: var(--blue);
+  background: var(--blue-light);
+}
+.bcv__step:hover .bcv__step-circle span { color: var(--blue); }
+
+.bcv__step-line {
+  width: 1.5px;
+  flex: 1;
+  background: var(--border);
+  margin: 6px 0;
+  min-height: 20px;
+}
+.bcv__step-content {
+  padding-bottom: var(--sp-5);
+}
+.bcv__step-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-1);
+  padding-top: 6px;
+}
+.bcv__step-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .bcv__layout { grid-template-columns: 1fr; gap: var(--sp-10); }
+}

@@ -1,0 +1,91 @@
+.hiw { border-bottom: 1px solid var(--border); }
+
+.hiw__steps { display: flex; flex-direction: column; gap: var(--sp-16); }
+.hiw__step {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-16);
+  align-items: center;
+}
+.hiw__step--reverse .hiw__step-copy  { order: 2; }
+.hiw__step--reverse .hiw__step-visual { order: 1; }
+
+.hiw__step-num {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: 0.06em;
+  margin-bottom: var(--sp-3);
+}
+.hiw__step-copy { display: flex; flex-direction: column; }
+
+/* Visual card — mini mockup */
+.hiw-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-section);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8);
+  min-height: 220px;
+}
+.hiw-visual__card {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5);
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.hiw-visual__card-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.hiw-visual__input-mock { background: var(--bg-section); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 9px 12px; }
+.hiw-visual__input-line { height: 8px; background: var(--border); border-radius: 4px; width: 100%; }
+.hiw-visual__roles { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+.hiw-visual__role {
+  font-size: 11px; font-weight: 500;
+  padding: 4px 10px; border-radius: var(--r-full);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  background: var(--bg-section);
+}
+.hiw-visual__role.active { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.hiw-visual__btn {
+  font-size: 12px; font-weight: 700;
+  background: var(--blue); color: #fff;
+  padding: 8px 14px; border-radius: var(--r-sm); text-align: center;
+}
+
+.hiw-visual__bank-row {
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: 8px 10px; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  font-size: 12px; font-weight: 500; color: var(--text-secondary);
+}
+.hiw-visual__bank-row.active { border-color: var(--blue); background: var(--blue-light); color: var(--blue); }
+.hiw-visual__bank-icon { font-size: 14px; }
+
+.hiw-visual__tx-amount { font-size: 28px; font-weight: 800; color: var(--green); letter-spacing: -0.04em; }
+.hiw-visual__tx-from   { font-size: 12px; color: var(--text-muted); }
+.hiw-visual__tx-hash {
+  display: flex; align-items: center; gap: var(--sp-2);
+  font-size: 11px; color: var(--text-muted);
+  background: var(--bg-section); padding: 6px 10px;
+  border-radius: var(--r-sm); border: 1px solid var(--border);
+}
+.hiw-visual__tx-hash code { font-size: 11px; color: var(--blue); }
+.hiw-visual__tx-status {
+  display: flex; align-items: center; gap: var(--sp-2);
+  font-size: 13px; font-weight: 600; color: var(--green);
+  background: var(--green-light); padding: 7px 12px;
+  border-radius: var(--r-sm);
+}
+
+@media (max-width: 900px) {
+  .hiw__step { grid-template-columns: 1fr; gap: var(--sp-8); }
+  .hiw__step--reverse .hiw__step-copy  { order: 1; }
+  .hiw__step--reverse .hiw__step-visual { order: 2; }
+}
