@@ -1,89 +1,178 @@
-.bcv { border-bottom: 1px solid var(--border); }
-.bcv__layout {
+/* ── Blockchain Section ──────────────────────────────────────── */
+.blockchain {
+  padding: 96px 0;
+  background: var(--bg-section);
+  border-bottom: 1px solid var(--border);
+}
+
+.blockchain__layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--sp-16);
+  gap: 80px;
   align-items: start;
 }
 
-/* Stats */
-.bcv__stats {
+/* Left copy */
+.blockchain__copy .lead {
+  margin-top: 16px;
+  max-width: 420px;
+}
+
+.blockchain__stats {
   display: flex;
-  gap: var(--sp-8);
-  margin-top: var(--sp-8);
-  padding-top: var(--sp-8);
+  gap: 32px;
+  margin-top: 40px;
+  padding-top: 32px;
   border-top: 1px solid var(--border);
   flex-wrap: wrap;
 }
-.bcv__stat-value {
-  font-size: 26px;
-  font-weight: 700;
+
+.blockchain__stat-value {
+  font-size: 28px;
+  font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: -0.03em;
-}
-.bcv__stat-label {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-top: 3px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 5px;
 }
 
-/* Stepper */
-.bcv__stepper { display: flex; flex-direction: column; }
-.bcv__step {
-  display: flex;
-  gap: var(--sp-4);
+.blockchain__stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.4;
 }
-.bcv__step-left {
+
+/* Right steps */
+.blockchain__steps-wrap {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.04);
+}
+
+.blockchain__steps-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.blockchain__steps-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.blockchain__steps-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  background: var(--green-light);
+  border-radius: 100px;
+  padding: 3px 10px;
+}
+
+.blockchain__steps {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px;
+}
+
+.blockchain__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: background var(--t);
+  position: relative;
+}
+
+.blockchain__step:hover {
+  background: var(--bg-section);
+}
+
+.blockchain__step-left {
   display: flex;
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
+  width: 34px;
 }
-.bcv__step-circle {
-  width: 36px; height: 36px;
+
+.blockchain__step-circle {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 1.5px solid var(--border);
   background: var(--bg-white);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  transition: border-color var(--t), background var(--t);
-}
-.bcv__step-circle span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 11px;
   font-weight: 700;
   color: var(--text-muted);
-  transition: color var(--t);
+  flex-shrink: 0;
+  transition: border-color var(--t), background var(--t), color var(--t);
 }
-/* Selective dynamic: step hover */
-.bcv__step:hover .bcv__step-circle {
+
+.blockchain__step:hover .blockchain__step-circle {
   border-color: var(--blue);
   background: var(--blue-light);
+  color: var(--blue);
 }
-.bcv__step:hover .bcv__step-circle span { color: var(--blue); }
 
-.bcv__step-line {
-  width: 1.5px;
-  flex: 1;
+.blockchain__step-line {
+  width: 1px;
+  height: 16px;
   background: var(--border);
-  margin: 6px 0;
-  min-height: 20px;
+  margin: 4px 0;
 }
-.bcv__step-content {
-  padding-bottom: var(--sp-5);
+
+.blockchain__step-content {
+  padding-top: 5px;
+  flex: 1;
 }
-.bcv__step-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--sp-1);
-  padding-top: 6px;
-}
-.bcv__step-desc {
+
+.blockchain__step-title {
   font-size: 14px;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+  letter-spacing: -0.01em;
+}
+
+.blockchain__step-desc {
+  font-size: 13px;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
-@media (max-width: 900px) {
-  .bcv__layout { grid-template-columns: 1fr; gap: var(--sp-10); }
+.blockchain__step-hash {
+  font-size: 10px;
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+  color: var(--blue);
+  background: var(--blue-light);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-top: 4px;
+  display: inline-block;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 880px) {
+  .blockchain {
+    padding: 72px 0;
+  }
+  .blockchain__layout {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
 }
