@@ -1,85 +1,118 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import "./Footer.css";
+import cresoxLogo from "../../../assets/cresox-logo.png";
 
-const LINKS = {
-  Platform:  ["Wallet", "Marketplace", "Blockchain", "Analytics", "Pricing"],
-  Company:   ["About Us", "Blog", "Careers", "Press Kit"],
-  Legal:     ["Privacy Policy", "Terms of Service", "Cookie Policy"],
-  Support:   ["Help Centre", "Contact Us", "Status", "API Docs"],
+const FOOTER_LINKS = {
+  Company: [
+    { label: "About Us", href: "#company" },
+    { label: "Careers", href: "#" },
+    { label: "Press", href: "#" },
+    { label: "Contact", href: "#contact" },
+  ],
+  Solutions: [
+    { label: "Digital Wallet", href: "#developers" },
+    { label: "Marketplace", href: "#marketplace" },
+    { label: "Business Banking", href: "#developers" },
+    { label: "Developer APIs", href: "#developers" },
+  ],
+  Resources: [
+    { label: "Documentation", href: "#developers" },
+    { label: "API Reference", href: "#developers" },
+    { label: "Help Centre", href: "#contact" },
+    { label: "Status", href: "#" },
+  ],
+  Legal: [
+    { label: "Privacy Policy", href: "#" },
+    { label: "Terms of Service", href: "#" },
+    { label: "Cookie Policy", href: "#" },
+    { label: "Compliance", href: "#" },
+  ],
 };
+
+const SOCIAL = [
+  {
+    label: "LinkedIn",
+    href: "#",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-12h4v2" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="2" y="9" width="4" height="12" stroke="currentColor" strokeWidth="1.75" />
+        <circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="1.75" />
+      </svg>
+    ),
+  },
+  {
+    label: "Twitter",
+    href: "#",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 4l16 16M20 4L4 20" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    label: "GitHub",
+    href: "#",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M9 19c-4 1.5-4-2.5-6-3m12 5v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 18 4.77 5.07 5.07 0 0 0 17.91 1S16.73.65 13 2.48a13.38 13.38 0 0 0-7 0C2.27.65 1.09 1 1.09 1A5.07 5.07 0 0 0 1 4.77 5.44 5.44 0 0 0 3.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+];
 
 function Footer() {
   return (
     <footer className="footer" id="contact">
-      {/* CTA band */}
-      <div className="footer__cta">
-        <div className="container footer__cta-inner">
-          <div>
-            <div className="footer__cta-eyebrow">Get started today</div>
-            <h2 className="footer__cta-title">Ready to build your financial future?</h2>
-            <p className="footer__cta-sub">
-              Join 12,480+ businesses and individuals on CresoX. Free to start.
-            </p>
-          </div>
-          <div className="footer__cta-actions">
-            <Link to="/register" className="btn btn-white btn-lg">
-              Create Free Account
-            </Link>
-            <Link to="/dashboard" className="btn-outline-white">
-              View Demo <ArrowRight size={15} />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Dark footer */}
-      <div className="footer__main">
-        <div className="container footer__grid">
-          {/* Brand */}
+      <div className="footer__container">
+        <div className="footer__top">
           <div className="footer__brand">
-            <div className="footer__brand-logo">
-              <span style={{ color: "#4FA3FF" }}>Creso</span>
-              <span style={{ color: "#FF5A5A" }}>X</span>
-            </div>
-            <div className="footer__brand-tagline">Fintech Private Limited</div>
-            <p className="footer__brand-desc">
-              Building a secure financial ecosystem powered by blockchain technology.
+            <Link to="/" className="footer__logo">
+              <img
+                src={cresoxLogo}
+                alt="CresoX Fintech Private Limited"
+                className="footer__logo-img"
+              />
+            </Link>
+            <p className="footer__desc">
+              A complete financial ecosystem for wallets, marketplace trading,
+              blockchain verification, and developer integrations.
             </p>
-            <div className="footer__brand-badges">
-              <span className="footer__badge">🔒 SOC2 Compliant</span>
-              <span className="footer__badge">⚡ AES-256 Encrypted</span>
-              <span className="footer__badge">🇮🇳 RBI Compliant</span>
-            </div>
-          </div>
-
-          {/* Link columns */}
-          {Object.entries(LINKS).map(([heading, items]) => (
-            <div className="footer__col" key={heading}>
-              <div className="footer__col-heading">{heading}</div>
-              {items.map((item) => (
-                <a key={item} href="#" className="footer__col-link">
-                  {item}
+            <div className="footer__social">
+              {SOCIAL.map(({ label, icon, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  className="footer__social-link"
+                  aria-label={label}
+                >
+                  {icon}
                 </a>
               ))}
+            </div>
+          </div>
+
+          {Object.entries(FOOTER_LINKS).map(([heading, links]) => (
+            <div className="footer__col" key={heading}>
+              <h3 className="footer__col-title">{heading}</h3>
+              <ul className="footer__col-list">
+                {links.map((link) => (
+                  <li key={link.label}>
+                    <a href={link.href} className="footer__col-link">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
 
-        {/* Bottom bar */}
-        <div className="container footer__bottom">
-          <span>© 2024 CresoX Fintech Private Limited. All rights reserved. CIN: U74999MH2024PTC123456</span>
-          <div className="footer__bottom-right">
-            <div className="footer__bottom-links">
-              <a href="#" className="footer__bottom-link">Privacy</a>
-              <a href="#" className="footer__bottom-link">Terms</a>
-              <a href="#" className="footer__bottom-link">Cookies</a>
-            </div>
-            <span className="footer__live-badge">
-              <span className="dot-live" />
-              All systems operational
-            </span>
-          </div>
+        <div className="footer__bottom">
+          <p className="footer__copy">
+            © {new Date().getFullYear()} CresoX Fintech Private Limited. All rights reserved.
+          </p>
+          <p className="footer__meta">CIN: U74999MH2024PTC123456 · Mumbai, India</p>
         </div>
       </div>
     </footer>

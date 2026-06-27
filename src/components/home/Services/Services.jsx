@@ -1,59 +1,66 @@
+import {
+  Wallet,
+  ShoppingBag,
+  Building2,
+  Link2,
+  Code2,
+  BarChart3,
+} from "lucide-react";
 import "./Services.css";
 
 const SERVICES = [
   {
-    icon: "💳",
-    title: "Smart Wallet",
-    desc: "Multi-currency wallet, instant transfers, and real-time balance visibility for all accounts.",
-    tag: "Core",
+    icon: Wallet,
+    title: "Digital Wallet",
+    desc: "Hold, send, and receive funds with real-time balance updates and multi-account support.",
   },
   {
-    icon: "🏪",
-    title: "Verified Marketplace",
-    desc: "Buy and sell services and digital products from regulated providers with blockchain-backed trust.",
-    tag: "Marketplace",
+    icon: ShoppingBag,
+    title: "Marketplace",
+    desc: "Browse verified listings, compare sellers, and complete purchases with instant settlement.",
   },
   {
-    icon: "📊",
-    title: "Analytics",
-    desc: "Track performance, monitor payments, and review cash flow with clear, exportable reports.",
-    tag: "Insights",
+    icon: Building2,
+    title: "Business Banking",
+    desc: "Team permissions, invoicing, vendor payments, and consolidated business account controls.",
   },
   {
-    icon: "⛓",
+    icon: Link2,
     title: "Blockchain Verification",
-    desc: "Immutable audits for every settlement, order, and ledger record — built for transparency.",
-    tag: "Security",
+    desc: "Every transaction receives an on-chain hash proof — auditable without exposing private data.",
   },
   {
-    icon: "🔒",
-    title: "Compliance Hub",
-    desc: "Manage KYC, invoicing, settlements, and audit logs from one secure control center.",
-    tag: "Compliance",
+    icon: Code2,
+    title: "Developer APIs",
+    desc: "REST endpoints, webhooks, and sandbox environments to embed CresoX into your product.",
+  },
+  {
+    icon: BarChart3,
+    title: "Analytics",
+    desc: "Track cash flow, marketplace activity, and portfolio performance with exportable reports.",
   },
 ];
 
 function Services() {
   return (
-    <section className="financial-services" id="solutions">
-      <div className="container">
-        <div className="services-header">
-          <span className="tag">Financial Services</span>
-          <h2 className="h2">A complete suite for modern finance teams.</h2>
-          <p className="lead">
-            CresoX brings payments, marketplace trading, reporting, verification, and compliance together in one professional platform.
+    <section className="services" id="developers">
+      <div className="services__container">
+        <div className="services__header">
+          <h2 className="services__title">Everything you need in one platform</h2>
+          <p className="services__subtitle">
+            Six core services that power the CresoX financial ecosystem for individuals,
+            businesses, and developers.
           </p>
         </div>
 
-        <div className="services-grid">
-          {SERVICES.map((service) => (
-            <article className="service-card" key={service.title}>
-              <div className="service-card__top">
-                <div className="service-card__icon">{service.icon}</div>
-                <span className="badge badge-gray service-card__tag">{service.tag}</span>
+        <div className="services__grid">
+          {SERVICES.map(({ icon: Icon, title, desc }) => (
+            <article className="services__card" key={title}>
+              <div className="services__icon">
+                <Icon size={20} strokeWidth={1.75} />
               </div>
-              <h3 className="service-card__title">{service.title}</h3>
-              <p className="service-card__desc">{service.desc}</p>
+              <h3 className="services__card-title">{title}</h3>
+              <p className="services__card-desc">{desc}</p>
             </article>
           ))}
         </div>

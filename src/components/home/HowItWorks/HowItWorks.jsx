@@ -1,54 +1,50 @@
-import { UserPlus, Link2, ShoppingBag, BarChart3 } from "lucide-react";
+import {
+  UserPlus,
+  ShieldCheck,
+  Wallet,
+  ShoppingBag,
+  Link2,
+  BarChart3,
+  ArrowRight,
+} from "lucide-react";
 import "./HowItWorks.css";
 
 const STEPS = [
-  {
-    num: "01",
-    icon: UserPlus,
-    title: "Create your account",
-    desc: "Register in under 2 minutes. Choose your role — Individual, Business, Buyer, or Seller — and get a purpose-built dashboard instantly.",
-  },
-  {
-    num: "02",
-    icon: Link2,
-    title: "Connect your finances",
-    desc: "Link your bank account, set up your wallet, and import existing portfolios. All data is encrypted with AES-256.",
-  },
-  {
-    num: "03",
-    icon: ShoppingBag,
-    title: "Transact with confidence",
-    desc: "Every payment, purchase, or listing is blockchain-verified. You receive an immutable receipt for every action.",
-  },
-  {
-    num: "04",
-    icon: BarChart3,
-    title: "Measure everything",
-    desc: "Access real-time analytics, portfolio performance, tax summaries, and custom reports — all in one exportable dashboard.",
-  },
+  { icon: UserPlus, label: "Register", desc: "Create your account" },
+  { icon: ShieldCheck, label: "Verify", desc: "Complete KYC" },
+  { icon: Wallet, label: "Wallet", desc: "Fund your balance" },
+  { icon: ShoppingBag, label: "Marketplace", desc: "Buy or sell" },
+  { icon: Link2, label: "Blockchain", desc: "Hash recorded" },
+  { icon: BarChart3, label: "Analytics", desc: "Track performance" },
 ];
 
 function HowItWorks() {
   return (
     <section className="hiw">
-      <div className="container">
-        <div className="section-header">
-          <span className="tag">How It Works</span>
-          <h2 className="h2">Up and running in minutes.</h2>
-          <p className="lead">
-            No lengthy onboarding. No paperwork. Register, connect, and start transacting.
+      <div className="hiw__container">
+        <div className="hiw__header">
+          <h2 className="hiw__title">How the ecosystem works</h2>
+          <p className="hiw__subtitle">
+            From registration to analytics — a clear path through every stage of the CresoX platform.
           </p>
         </div>
 
-        <div className="hiw__grid">
-          {STEPS.map(({ num, icon: Icon, title, desc }) => (
-            <div className="hiw__step" key={num}>
-              <div className="hiw__step-num">{num}</div>
-              <div className="hiw__step-icon">
-                <Icon size={18} />
+        <div className="hiw__timeline">
+          {STEPS.map((step, index) => (
+            <div className="hiw__step-wrap" key={step.label}>
+              <div className="hiw__step">
+                <div className="hiw__step-icon">
+                  <step.icon size={18} strokeWidth={1.75} />
+                </div>
+                <span className="hiw__step-label">{step.label}</span>
+                <span className="hiw__step-desc">{step.desc}</span>
               </div>
-              <h3 className="hiw__step-title">{title}</h3>
-              <p className="hiw__step-desc">{desc}</p>
+              {index < STEPS.length - 1 && (
+                <div className="hiw__arrow" aria-hidden="true">
+                  <ArrowRight size={16} strokeWidth={1.75} className="hiw__arrow-icon hiw__arrow-icon--horizontal" />
+                  <span className="hiw__arrow-icon hiw__arrow-icon--vertical">↓</span>
+                </div>
+              )}
             </div>
           ))}
         </div>

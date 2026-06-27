@@ -11,6 +11,7 @@ import {
   Link2,
 } from "lucide-react";
 import "./Navbar.css";
+import cresoxLogo from "../../../assets/cresox-logo.png";
 
 const NAV_LINKS = [
   { label: "Marketplace", href: "#marketplace" },
@@ -105,11 +106,11 @@ function Navbar() {
     <header className={`navbar ${scrolled ? "navbar--scrolled" : ""}`}>
       <div className="navbar__inner">
         <Link to="/" className="navbar__logo" aria-label="CresoX Fintech Private Limited">
-          <span className="navbar__wordmark">
-            <span className="navbar__logo-creso">Creso</span>
-            <span className="navbar__logo-x">X</span>
-          </span>
-          <span className="navbar__tagline">Fintech Private Limited</span>
+          <img
+            src={cresoxLogo}
+            alt="CresoX Fintech Private Limited"
+            className="navbar__logo-img"
+          />
         </Link>
 
         <nav className="navbar__nav" aria-label="Main navigation">
