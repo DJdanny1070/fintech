@@ -108,7 +108,7 @@ export async function withdrawSimulation(userId, amount, destination = "bank") {
  */
 export async function transferBetweenUsers(senderId, recipientIdentifier, amount, note = null) {
   // Resolve recipient
-  let recipient = null;
+  let recipient;
   if (recipientIdentifier.includes("@")) {
     recipient = await getProfileByEmail(recipientIdentifier);
   } else {

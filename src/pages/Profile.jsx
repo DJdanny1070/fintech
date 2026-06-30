@@ -17,15 +17,19 @@ function Profile() {
   const [verifSubmitting, setVerifSubmitting] = useState(false);
 
   useEffect(() => {
-    if (profile) {
-      setForm({
-        full_name: profile.full_name || "",
-        phone: profile.phone || "",
-        company: profile.company_name || "",
-        avatar: null,
-      });
-    }
-    setLoading(false);
+    const timer = setTimeout(() => {
+      if (profile) {
+        setForm({
+          full_name: profile.full_name || "",
+          phone: profile.phone || "",
+          company: profile.company_name || "",
+          avatar: null,
+        });
+      }
+      setLoading(false);
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [profile]);
 
   const showToast = (msg) => {

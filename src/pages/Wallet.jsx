@@ -1,17 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../components/common/ToastProvider";
 import { getTransactionsForUser, depositSimulation, withdrawSimulation, transferBetweenUsers } from "../services/transactionService";
-import { getGlobalCounts } from "../services/productService";
 import "./Dashboard.css";
-
-const HISTORY = [
-  { id:"W-091", type:"Received", party:"Rahul Kumar",     amount:"+₹12,500",  status:"verified", date:"27 Jun 2026" },
-  { id:"W-090", type:"Purchase", party:"FinTechPro",      amount:"-₹2,500",   status:"verified", date:"27 Jun 2026" },
-  { id:"W-089", type:"Deposit",  party:"HDFC Bank",       amount:"+₹50,000",  status:"pending",  date:"26 Jun 2026" },
-  { id:"W-088", type:"Sent",     party:"Priya Sharma",    amount:"-₹8,000",   status:"verified", date:"25 Jun 2026" },
-  { id:"W-087", type:"Deposit",  party:"SBI Savings",     amount:"+₹1,00,000",status:"verified", date:"23 Jun 2026" },
-  { id:"W-086", type:"Purchase", party:"CreditPulse",     amount:"-₹999",     status:"verified", date:"21 Jun 2026" },
-];
 
 const ACTIONS = [
   { label:"Send",     icon:<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> },
@@ -45,7 +36,7 @@ function Wallet() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [txError, setTxError] = useState("");
-  const [toast, setToast] = useState("");
+  const toast = useToast();
   const [amountInput, setAmountInput] = useState("");
   const [recipientInput, setRecipientInput] = useState("");
   const [noteInput, setNoteInput] = useState("");
@@ -75,8 +66,7 @@ function Wallet() {
   }, [user]);
 
   const showToast = (msg) => {
-    setToast(msg);
-    setTimeout(() => setToast(""), 3000);
+    toast.success(msg);
   };
 
   return (

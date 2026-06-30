@@ -49,8 +49,22 @@ function Marketplace() {
   }, [search, cat]);
 
   useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
+    let mounted = true;
+    const loadCurrent = async () => {
+      if (!mounted) return;
+      setLoadingList(true);
+      try {
+        const data = await getProducts({ search, category: cat });
+        if (mounted) setProducts(data);
+      } catch (err) {
+        console.error("Failed to load products:", err.message);
+      } finally {
+        if (mounted) setLoadingList(false);
+      }
+    };
+    loadCurrent();
+    return () => { mounted = false; };
+  }, [search, cat]);
 
   // ── Product CRUD ─────────────────────────────────────────────
 

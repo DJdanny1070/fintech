@@ -83,7 +83,9 @@ function Blockchain() {
             const { supabase } = await import("../services/supabase");
             const { data, error } = await supabase.from('profiles').select('*').eq('id', query.trim()).single();
             if (!error) profile = data;
-          } catch (e) {}
+          } catch (err) {
+            console.warn("Blockchain user lookup failed:", err);
+          }
         }
         if (!profile) { setError('User not found'); setResults([]); }
         else {

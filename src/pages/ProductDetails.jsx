@@ -56,6 +56,7 @@ function ProductDetails() {
       await navigator.clipboard.writeText(product.blockchain_hash);
       toast.success("Copied to clipboard");
     } catch (err) {
+      console.error("Copy failed:", err);
       toast.error("Copy failed");
     }
   };
