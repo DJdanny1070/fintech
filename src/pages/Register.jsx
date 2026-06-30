@@ -149,8 +149,8 @@ function Register() {
             </div>
             <p className="auth-terms">
               By registering, you agree to our{" "}
-              <a href="#" className="auth-link">Terms of Service</a> and{" "}
-              <a href="#" className="auth-link">Privacy Policy</a>.
+              <span className="auth-link auth-link--disabled" aria-disabled="true">Terms of Service</span> and{" "}
+              <span className="auth-link auth-link--disabled" aria-disabled="true">Privacy Policy</span>.
             </p>
             <button type="submit" className="btn btn-primary auth-submit" disabled={loading || googleLoading}>
               {loading ? <><span className="spinner"/> Creating account...</> : "Create Free Account →"}

@@ -113,9 +113,11 @@
 .auth-field__row { display: flex; align-items: center; justify-content: space-between; }
 .auth-forgot { font-size: 13px; font-weight: 500; color: var(--blue); }
 .auth-forgot:hover { color: var(--blue-dark); }
+.auth-forgot--disabled { color: var(--text-muted); cursor: not-allowed; }
 
 .auth-terms { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 .auth-link { color: var(--blue); font-weight: 600; }
+.auth-link--disabled { color: var(--text-muted); cursor: not-allowed; }
 
 .auth-submit {
   width: 100%;

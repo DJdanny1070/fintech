@@ -130,7 +130,7 @@ function Login() {
             <div className="auth-field">
               <div className="auth-field__row">
                 <label className="input-label">Password</label>
-                <a href="#" className="auth-forgot">Forgot password?</a>
+                <span className="auth-forgot auth-forgot--disabled" aria-disabled="true">Forgot password?</span>
               </div>
               <input className="input" type="password" placeholder="Enter your password"
                 value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />

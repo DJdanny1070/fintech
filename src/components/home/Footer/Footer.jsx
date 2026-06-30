@@ -5,34 +5,34 @@ import cresoxLogo from "../../../assets/cresox-logo.png";
 const FOOTER_LINKS = {
   Company: [
     { label: "About Us", href: "#company" },
-    { label: "Careers", href: "#" },
-    { label: "Press", href: "#" },
+    { label: "Careers", href: null },
+    { label: "Press", href: null },
     { label: "Contact", href: "#contact" },
   ],
   Solutions: [
-    { label: "Digital Wallet", href: "#developers" },
+    { label: "Digital Wallet", href: "/register?role=individual" },
     { label: "Marketplace", href: "#marketplace" },
-    { label: "Business Banking", href: "#developers" },
-    { label: "Developer APIs", href: "#developers" },
+    { label: "Business Banking", href: "/register?role=business" },
+    { label: "Developer APIs", href: "/register?role=developer" },
   ],
   Resources: [
-    { label: "Documentation", href: "#developers" },
-    { label: "API Reference", href: "#developers" },
+    { label: "Documentation", href: null },
+    { label: "API Reference", href: null },
     { label: "Help Centre", href: "#contact" },
-    { label: "Status", href: "#" },
+    { label: "Status", href: null },
   ],
   Legal: [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Cookie Policy", href: "#" },
-    { label: "Compliance", href: "#" },
+    { label: "Privacy Policy", href: null },
+    { label: "Terms of Service", href: null },
+    { label: "Cookie Policy", href: null },
+    { label: "Compliance", href: null },
   ],
 };
 
 const SOCIAL = [
   {
     label: "LinkedIn",
-    href: "#",
+    href: null,
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-12h4v2" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -43,7 +43,7 @@ const SOCIAL = [
   },
   {
     label: "Twitter",
-    href: "#",
+    href: null,
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M4 4l16 16M20 4L4 20" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
@@ -52,7 +52,7 @@ const SOCIAL = [
   },
   {
     label: "GitHub",
-    href: "#",
+    href: null,
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M9 19c-4 1.5-4-2.5-6-3m12 5v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 18 4.77 5.07 5.07 0 0 0 17.91 1S16.73.65 13 2.48a13.38 13.38 0 0 0-7 0C2.27.65 1.09 1 1.09 1A5.07 5.07 0 0 0 1 4.77 5.44 5.44 0 0 0 3.5 8.55c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -80,14 +80,24 @@ function Footer() {
             </p>
             <div className="footer__social">
               {SOCIAL.map(({ label, icon, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  className="footer__social-link"
-                  aria-label={label}
-                >
-                  {icon}
-                </a>
+                href ? (
+                  <a
+                    key={label}
+                    href={href}
+                    className="footer__social-link"
+                    aria-label={label}
+                  >
+                    {icon}
+                  </a>
+                ) : (
+                  <span
+                    key={label}
+                    className="footer__social-link footer__social-link--disabled"
+                    aria-hidden="true"
+                  >
+                    {icon}
+                  </span>
+                )
               ))}
             </div>
           </div>
@@ -98,9 +108,18 @@ function Footer() {
               <ul className="footer__col-list">
                 {links.map((link) => (
                   <li key={link.label}>
-                    <a href={link.href} className="footer__col-link">
-                      {link.label}
-                    </a>
+                    {link.href ? (
+                      <a href={link.href} className="footer__col-link">
+                        {link.label}
+                      </a>
+                    ) : (
+                      <span
+                        className="footer__col-link footer__col-link--disabled"
+                        aria-disabled="true"
+                      >
+                        {link.label}
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>

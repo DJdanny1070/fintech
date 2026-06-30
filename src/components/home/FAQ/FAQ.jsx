@@ -42,7 +42,7 @@ function FAQ() {
             Everything you need to know about CresoX. Can't find what you're
             looking for?
           </p>
-          <a href="#" className="faq__copy-link">
+          <a href="#contact" className="faq__copy-link">
             Contact our support team →
           </a>
         </div>

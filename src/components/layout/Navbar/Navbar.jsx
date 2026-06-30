@@ -16,7 +16,7 @@ import cresoxLogo from "../../../assets/cresox-logo.png";
 const NAV_LINKS = [
   { label: "Marketplace", href: "#marketplace" },
   { label: "Blockchain", href: "#blockchain" },
-  { label: "Developers", href: "#developers" },
+  { label: "Developers", href: "/register?role=developer" },
   { label: "Company", href: "#company" },
   { label: "Contact", href: "#contact" },
 ];

@@ -64,6 +64,16 @@
   color: #ffffff;
 }
 
+.footer__social-link--disabled,
+.footer__col-link--disabled {
+  color: rgba(255, 255, 255, 0.38);
+  cursor: not-allowed;
+}
+
+.footer__col-link--disabled:hover {
+  color: rgba(255, 255, 255, 0.38);
+}
+
 .footer__col-title {
   font-size: 12px;
   font-weight: 600;
