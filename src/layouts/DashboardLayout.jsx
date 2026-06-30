@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import "./DashboardLayout.css";
 
 const NAV = [
@@ -31,11 +32,34 @@ const NAV = [
       <line x1="6" y1="20" x2="6" y2="14"/>
     </svg>
   )},
+  { path: "/dashboard/orders",      label: "Orders",      icon: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+  )},
 ];
 
 function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const { profile, logout } = useAuth();
+
+  const displayName = profile?.full_name || "User";
+  const avatarLetter = displayName.charAt(0).toUpperCase();
+  const displayRole = profile?.role
+    ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1)
+    : "Member";
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err.message);
+    }
+  };
 
   return (
     <div className={`db-layout ${collapsed ? "db-layout--collapsed" : ""}`}>
@@ -87,14 +111,19 @@ function DashboardLayout() {
         <div className="db-sidebar__bottom">
           {!collapsed && (
             <div className="db-sidebar__user">
-              <div className="db-sidebar__avatar">J</div>
+              <div className="db-sidebar__avatar">{avatarLetter}</div>
               <div className="db-sidebar__user-info">
-                <div className="db-sidebar__user-name">Jonathan M.</div>
-                <div className="db-sidebar__user-role">Individual · Pro</div>
+                <div className="db-sidebar__user-name">{displayName}</div>
+                <div className="db-sidebar__user-role">{displayRole}</div>
               </div>
             </div>
           )}
-          <NavLink to="/" className="db-nav-item" title={collapsed ? "Log Out" : undefined}>
+          <button
+            className="db-nav-item"
+            onClick={handleLogout}
+            title={collapsed ? "Log Out" : undefined}
+            style={{ width: "100%", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}
+          >
             <span className="db-nav-item__icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/>
@@ -102,7 +131,7 @@ function DashboardLayout() {
               </svg>
             </span>
             {!collapsed && <span className="db-nav-item__label">Log Out</span>}
-          </NavLink>
+          </button>
         </div>
       </aside>
 
@@ -125,7 +154,7 @@ function DashboardLayout() {
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
             </button>
-            <div className="db-topbar__avatar">J</div>
+            <div className="db-topbar__avatar">{avatarLetter}</div>
           </div>
         </header>
 

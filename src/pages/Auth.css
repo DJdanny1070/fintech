@@ -162,3 +162,16 @@
   .auth-form-row { grid-template-columns: 1fr; }
   .auth-roles__grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ── Error message ───────────────────────────────────────────── */
+.auth-error {
+  background: var(--red-light);
+  border: 1px solid rgba(224, 1, 11, 0.18);
+  border-radius: var(--r-md);
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 14px;
+  line-height: 1.5;
+}
+

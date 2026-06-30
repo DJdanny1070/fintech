@@ -1,30 +1,142 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import {
+  getProducts,
+  createProduct,
+  deleteProduct,
+  uploadProductImage,
+  createOrder,
+} from "../services/productService";
+import { generateAndStoreHash } from "../services/hashService";
+import { updateProduct } from "../services/productService";
 import "./Dashboard.css";
+import { useToast } from "../components/common/ToastProvider";
+import LoadingSkeleton from "../components/common/LoadingSkeleton";
+import EmptyState from "../components/common/EmptyState";
 
-const LISTINGS = [
-  { id:"L-001", title:"Premium Analytics Suite",      seller:"FinTechPro",   cat:"Analytics",    price:"₹2,500", rating:4.9, verified:true },
-  { id:"L-002", title:"Investment Portfolio API",     seller:"CodeFinance",  cat:"Developer",    price:"₹4,000", rating:4.7, verified:true },
-  { id:"L-003", title:"Business Credit Score Report", seller:"CreditPulse",  cat:"Compliance",   price:"₹999",   rating:4.8, verified:true },
-  { id:"L-004", title:"Crypto Wallet Integration",    seller:"BlockDev",     cat:"Blockchain",   price:"₹6,500", rating:4.6, verified:true },
-  { id:"L-005", title:"Tax Compliance Automation",    seller:"TaxPilot",     cat:"Compliance",   price:"₹3,200", rating:4.5, verified:true },
-  { id:"L-006", title:"Smart Invoice Generator",      seller:"InvoiceAI",    cat:"Analytics",    price:"₹1,500", rating:4.7, verified:true },
-  { id:"L-007", title:"KYC Verification Suite",       seller:"SecureVerify", cat:"Compliance",   price:"₹5,000", rating:4.8, verified:true },
-  { id:"L-008", title:"Real-time FX Rate API",        seller:"FXStream",     cat:"Developer",    price:"₹2,800", rating:4.4, verified:false },
-];
+const CATS = ["All", "Real Estate", "Renewable Energy", "Infrastructure", "Receivables", "Arts & Collectibles", "Other"];
 
-const CATS = ["All", "Analytics", "Developer", "Compliance", "Blockchain"];
+const EMPTY_FORM = { title:"", description:"", category:"Real Estate", price:"", image:null };
 
 function Marketplace() {
+  const { user, profile } = useAuth();
+  const isBusiness = profile?.role === "business";
+  const toast = useToast();
+
   const [cat, setCat] = useState("All");
   const [search, setSearch] = useState("");
-  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loadingList, setLoadingList] = useState(true);
 
-  const filtered = LISTINGS.filter(l => {
-    const matchCat  = cat === "All" || l.cat === cat;
-    const matchSrch = l.title.toLowerCase().includes(search.toLowerCase()) || l.seller.toLowerCase().includes(search.toLowerCase());
-    const matchVer  = !verifiedOnly || l.verified;
-    return matchCat && matchSrch && matchVer;
-  });
+  // Create/Edit modal
+  const [showModal, setShowModal] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+  const [modalError, setModalError] = useState("");
+
+  const loadProducts = useCallback(async () => {
+    setLoadingList(true);
+    try {
+      const data = await getProducts({ search, category: cat });
+      setProducts(data);
+    } catch (err) {
+      console.error("Failed to load products:", err.message);
+    } finally {
+      setLoadingList(false);
+    }
+  }, [search, cat]);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  // ── Product CRUD ─────────────────────────────────────────────
+
+  const openCreate = () => {
+    setEditId(null);
+    setForm(EMPTY_FORM);
+    setModalError("");
+    setShowModal(true);
+  };
+
+  const openEdit = (product) => {
+    setEditId(product.id);
+    setForm({
+      title: product.title,
+      description: product.description || "",
+      category: product.category || "Real Estate",
+      price: product.price ?? "",
+      image: null,
+    });
+    setModalError("");
+    setShowModal(true);
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setModalError("");
+    try {
+      let imageUrl = null;
+      if (form.image) {
+        imageUrl = await uploadProductImage(form.image, user.id);
+      }
+
+      const payload = {
+        title: form.title,
+        description: form.description,
+        category: form.category,
+        price: parseFloat(form.price) || 0,
+        seller_id: user.id,
+        ...(imageUrl && { image_url: imageUrl }),
+      };
+
+      if (editId) {
+        // Update
+        const updated = await updateProduct(editId, payload);
+        const hash = await generateAndStoreHash("product", updated.id, payload);
+        await updateProduct(updated.id, { blockchain_hash: hash });
+      } else {
+        // Create
+        const created = await createProduct(payload);
+        const hash = await generateAndStoreHash("product", created.id, payload);
+        await updateProduct(created.id, { blockchain_hash: hash });
+      }
+
+      setShowModal(false);
+      loadProducts();
+    } catch (err) {
+      setModalError(err.message || "Failed to save product.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this product?")) return;
+    try {
+      await deleteProduct(id);
+      setProducts(prev => prev.filter(p => p.id !== id));
+    } catch (err) {
+      toast.error("Failed to delete: " + err.message);
+    }
+  };
+
+  const handleBuy = async (product) => {
+    if (!user) return;
+    try {
+      await createOrder({
+        buyerId: user.id,
+        sellerId: product.seller_id,
+        productId: product.id,
+      });
+      toast.success("Order placed successfully!");
+    } catch (err) {
+      toast.error("Failed to place order: " + err.message);
+    }
+  };
 
   return (
     <div>
@@ -32,14 +144,16 @@ function Marketplace() {
         <div className="page-header__row">
           <div>
             <h1>Marketplace</h1>
-            <p>1,200+ verified financial products and services</p>
+            <p>{products.length} verified tokenized asset listings</p>
           </div>
-          <button className="btn btn-primary">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            List a Product
-          </button>
+          {isBusiness && (
+            <button className="btn btn-primary" onClick={openCreate}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              List a Product
+            </button>
+          )}
         </div>
       </div>
 
@@ -50,10 +164,10 @@ function Marketplace() {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input style={{border:"none",outline:"none",background:"none",width:"100%",fontSize:14}} placeholder="Search products or sellers..."
+            <input style={{border:"none",outline:"none",background:"none",width:"100%",fontSize:14}} placeholder="Search products..."
               value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          <div style={{display:"flex",gap:"var(--sp-2)"}}>
+          <div style={{display:"flex",gap:"var(--sp-2)",flexWrap:"wrap"}}>
             {CATS.map(c => (
               <button key={c} onClick={() => setCat(c)}
                 className={`btn btn-sm ${cat===c?"btn-primary":"btn-secondary"}`}>
@@ -61,11 +175,6 @@ function Marketplace() {
               </button>
             ))}
           </div>
-          <label style={{display:"flex",alignItems:"center",gap:"var(--sp-2)",fontSize:14,fontWeight:500,color:"var(--text-secondary)",cursor:"pointer",whiteSpace:"nowrap"}}>
-            <input type="checkbox" checked={verifiedOnly} onChange={e => setVerifiedOnly(e.target.checked)}
-              style={{accentColor:"var(--blue)"}} />
-            Verified only
-          </label>
         </div>
       </div>
 
@@ -74,51 +183,124 @@ function Marketplace() {
         <div className="content-card__header">
           <div>
             <div className="content-card__title">Available Listings</div>
-            <div className="content-card__sub">{filtered.length} results</div>
+            <div className="content-card__sub">{loadingList ? "Loading..." : `${products.length} results`}</div>
           </div>
         </div>
         <table className="data-table">
           <thead>
             <tr>
-              <th>ID</th><th>Product</th><th>Seller</th>
-              <th>Category</th><th>Rating</th><th>Price</th><th></th>
+              <th>Product</th><th>Seller</th><th>Category</th>
+              <th>Price</th><th>Verified</th><th></th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map(l => (
+            {!loadingList && products.map(l => (
               <tr key={l.id}>
-                <td style={{fontFamily:"monospace",color:"var(--text-muted)",fontSize:12}}>{l.id}</td>
-                <td style={{fontWeight:600,color:"var(--text-primary)"}}>{l.title}</td>
+                <td style={{fontWeight:600,color:"var(--text-primary)"}}>
+                  <Link to={`/marketplace/${l.id}`} style={{textDecoration:"none",color:"inherit"}}>{l.title}</Link>
+                </td>
                 <td>
                   <div style={{display:"flex",alignItems:"center",gap:"var(--sp-2)"}}>
                     <div style={{width:22,height:22,borderRadius:"50%",background:"var(--blue)",color:"#fff",fontSize:10,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                      {l.seller[0]}
+                      {(l.seller?.full_name || "?")[0].toUpperCase()}
                     </div>
-                    {l.seller}
-                    {l.verified && (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" strokeWidth="2.5" strokeLinecap="round">
-                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-                      </svg>
-                    )}
+                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                      <div>{l.seller?.full_name || "Unknown"}</div>
+                      {l.seller?.verification_status === 'Verified' ? <span className="status-badge status-badge--verified">Verified Seller</span> : null}
+                    </div>
                   </div>
                 </td>
-                <td><span className="badge badge-gray">{l.cat}</span></td>
-                <td style={{color:"#F59E0B",fontSize:13}}>
-                  {"★".repeat(Math.round(l.rating))}
-                  <span style={{color:"var(--text-muted)",fontSize:12,marginLeft:4}}>{l.rating}</span>
+                <td><span className="badge badge-gray">{l.category || "—"}</span></td>
+                <td style={{fontFamily:"monospace",fontWeight:700}}>
+                  {l.price ? `₹${Number(l.price).toLocaleString("en-IN")}` : "—"}
                 </td>
-                <td style={{fontWeight:700,letterSpacing:"-0.02em"}}>{l.price}</td>
-                <td><button className="btn btn-primary btn-sm">Buy</button></td>
+                <td>
+                  {l.blockchain_hash ? (
+                    <span className="status-badge status-badge--verified">✔ Blockchain Verified</span>
+                  ) : (
+                    <span className="status-badge status-badge--pending">⏳ Pending</span>
+                  )}
+                </td>
+                <td style={{display:"flex",gap:"var(--sp-2)",alignItems:"center"}}>
+                  {l.seller_id === user?.id ? (
+                    <>
+                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(l)}>Edit</button>
+                      <button className="btn btn-ghost btn-sm" style={{color:"var(--red)"}} onClick={() => handleDelete(l.id)}>Delete</button>
+                    </>
+                  ) : (
+                    <button className="btn btn-primary btn-sm" onClick={() => handleBuy(l)}>Buy</button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {filtered.length === 0 && (
-          <div style={{textAlign:"center",padding:"var(--sp-10)",color:"var(--text-muted)"}}>
-            No listings match your filters.
-          </div>
+        {!loadingList && products.length === 0 && (
+          <EmptyState title="No listings" description={<span>No listings match your filters. <Link to="/dashboard/marketplace" className="auth-link">Browse marketplace →</Link></span>} />
+        )}
+        {loadingList && (
+          <div style={{padding:"var(--sp-4) 0"}}><LoadingSkeleton rows={4} /></div>
         )}
       </div>
+
+      {/* Create/Edit Product Modal */}
+      {showModal && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.4)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:200}}
+          onClick={() => setShowModal(false)}>
+          <div className="content-card animate-fade-up" style={{width:520,maxWidth:"95vw",margin:0}}
+            onClick={e => e.stopPropagation()}>
+            <div className="content-card__header">
+              <div className="content-card__title">{editId ? "Edit Product" : "List a New Product"}</div>
+              <button className="btn btn-ghost btn-sm" onClick={() => setShowModal(false)}>✕</button>
+            </div>
+
+            {modalError && <div className="auth-error" style={{marginBottom:"var(--sp-4)"}}>{modalError}</div>}
+
+            <form onSubmit={handleSave}>
+              <div style={{display:"flex",flexDirection:"column",gap:"var(--sp-4)"}}>
+                <div className="auth-field">
+                  <label className="input-label">Product Title *</label>
+                  <input className="input" required value={form.title}
+                    onChange={e => setForm({...form, title:e.target.value})} placeholder="e.g. Commercial Property Token" />
+                </div>
+                <div className="auth-field">
+                  <label className="input-label">Description</label>
+                  <textarea className="input" rows={3} value={form.description}
+                    onChange={e => setForm({...form, description:e.target.value})}
+                    placeholder="Brief description of the asset..." style={{resize:"vertical"}} />
+                </div>
+                <div className="auth-form-row">
+                  <div className="auth-field">
+                    <label className="input-label">Category *</label>
+                    <select className="input" value={form.category}
+                      onChange={e => setForm({...form, category:e.target.value})}>
+                      {CATS.filter(c => c !== "All").map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="auth-field">
+                    <label className="input-label">Price (₹) *</label>
+                    <input className="input" type="number" min="0" required value={form.price}
+                      onChange={e => setForm({...form, price:e.target.value})} placeholder="0" />
+                  </div>
+                </div>
+                <div className="auth-field">
+                  <label className="input-label">Product Image</label>
+                  <input className="input" type="file" accept="image/*"
+                    onChange={e => setForm({...form, image: e.target.files[0] || null})} />
+                  <p style={{fontSize:12,color:"var(--text-muted)",marginTop:4}}>
+                    Uploaded to Supabase Storage. Leave blank to keep existing.
+                  </p>
+                </div>
+                <button type="submit" className="btn btn-primary auth-submit" disabled={saving}>
+                  {saving ? <><span className="spinner"/> Saving...</> : editId ? "Save Changes" : "List Product →"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

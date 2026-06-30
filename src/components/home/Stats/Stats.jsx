@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import "./Stats.css";
+import { getCounts as getUserCounts } from "../../../services/profileService";
+import { getTotalCount as getTxCount } from "../../../services/transactionService";
 
-const STATS = [
-  { value: 50000,  suffix: "+", label: "Active Users",       prefix: "",  decimals: 0 },
-  { value: 120,    suffix: "Cr+",label: "Transactions (₹)", prefix: "₹", decimals: 0 },
-  { value: 1200,   suffix: "+", label: "Verified Sellers",   prefix: "",  decimals: 0 },
-  { value: 99.9,   suffix: "%", label: "Uptime Guaranteed",  prefix: "",  decimals: 1 },
+const DEFAULT_STATS = [
+  { value: 0, suffix: "+", label: "Active Users", prefix: "", decimals: 0 },
+  { value: 0, suffix: "", label: "Transactions", prefix: "", decimals: 0 },
+  { value: 0, suffix: "+", label: "Verified Sellers", prefix: "", decimals: 0 },
+  { value: 99.9, suffix: "%", label: "Uptime Guaranteed", prefix: "", decimals: 1 },
 ];
 
 function useIntersection(ref) {
@@ -55,12 +57,36 @@ function StatItem({ value, suffix, label, prefix, decimals, started }) {
 function Stats() {
   const ref = useRef(null);
   const visible = useIntersection(ref);
+  const [stats, setStats] = useState(DEFAULT_STATS);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        const [userCounts, txCount] = await Promise.all([
+          getUserCounts(),
+          getTxCount(),
+        ]);
+        if (!mounted) return;
+        setStats([
+          { value: userCounts.users || 0, suffix: "+", label: "Active Users", prefix: "", decimals: 0 },
+          { value: txCount || 0, suffix: "", label: "Transactions", prefix: "", decimals: 0 },
+          { value: userCounts.verified_sellers || 0, suffix: "+", label: "Verified Sellers", prefix: "", decimals: 0 },
+          { value: 99.9, suffix: "%", label: "Uptime Guaranteed", prefix: "", decimals: 1 },
+        ]);
+      } catch (err) {
+        console.error('Failed to load stats', err.message);
+      }
+    }
+    load();
+    return () => (mounted = false);
+  }, []);
 
   return (
     <section className="stats-section" ref={ref}>
       <div className="container">
         <div className="stats-grid">
-          {STATS.map((s) => (
+          {stats.map((s) => (
             <StatItem key={s.label} {...s} started={visible} />
           ))}
         </div>

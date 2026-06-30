@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { ArrowRight, PhoneCall } from "lucide-react";
 import "./Hero.css";
 

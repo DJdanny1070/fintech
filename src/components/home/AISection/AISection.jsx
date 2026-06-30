@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import "./AISection.css";
 
 const PROMPTS = [
@@ -20,17 +20,17 @@ function AISection() {
   const [typed, setTyped]         = useState("");
   const [response, setResponse]   = useState("");
   const [phase, setPhase]         = useState("typing"); // typing | thinking | responding | done
-  const phaseRef = useRef(phase);
-  phaseRef.current = phase;
 
   useEffect(() => {
     const timeouts = [];
     const prompt = PROMPTS[promptIdx];
     const resp = RESPONSES[promptIdx];
 
-    setTyped("");
-    setResponse("");
-    setPhase("typing");
+    timeouts.push(setTimeout(() => {
+      setTyped("");
+      setResponse("");
+      setPhase("typing");
+    }, 0));
 
     let charIdx = 0;
     let respIdx = 0;
@@ -61,7 +61,7 @@ function AISection() {
       setTyped(prompt.slice(0, charIdx));
       if (charIdx >= prompt.length) {
         clearInterval(typeInterval);
-        setPhase("thinking");
+        timeouts.push(setTimeout(() => setPhase("thinking"), 0));
         const t = setTimeout(startResponding, 1000);
         timeouts.push(t);
       }

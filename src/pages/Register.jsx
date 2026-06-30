@@ -1,28 +1,51 @@
 import { useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import "./Auth.css";
 
+// Per spec: only Individual and Business
 const ROLES = [
-  { value:"individual", label:"👤 Individual", desc:"Personal" },
-  { value:"business",   label:"🏢 Business",   desc:"B2B" },
-  { value:"seller",     label:"🏪 Seller",      desc:"Marketplace" },
-  { value:"buyer",      label:"🛍️ Buyer",       desc:"Browse" },
-  { value:"developer",  label:"⚙️ Developer",   desc:"API" },
+  { value: "individual", label: "👤 Individual", desc: "Personal" },
+  { value: "business",   label: "🏢 Business",   desc: "B2B" },
 ];
 
 function Register() {
   const navigate = useNavigate();
-  const [params] = useSearchParams();
+  const { register, loginWithGoogle } = useAuth();
+
   const [form, setForm] = useState({
-    name:"", email:"", password:"",
-    role: params.get("role") || "individual",
+    name: "",
+    email: "",
+    password: "",
+    role: "individual",
   });
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    setTimeout(() => navigate("/choose-role"), 1000);
+    try {
+      await register(form.email, form.password, form.name, form.role);
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message || "Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    setError("");
+    setGoogleLoading(true);
+    try {
+      await loginWithGoogle();
+    } catch (err) {
+      setError(err.message || "Google sign-up failed.");
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -60,24 +83,41 @@ function Register() {
 
           <div className="auth-card__header">
             <h1 className="auth-card__title">Create your account</h1>
-            <p className="auth-card__sub">Join 12,480+ users. Free to get started.</p>
+            <p className="auth-card__sub">Join our platform. Free to get started.</p>
           </div>
 
-          <button className="auth-social-btn">
-            <svg width="18" height="18" viewBox="0 0 48 48">
-              <path fill="#EA4335" d="M24 9.5c3.6 0 6.5 1.4 8.4 3.3l6.3-6.3C35.2 2.9 30 .5 24 .5 14.8.5 6.9 6 2.8 14l7.4 5.7C12.2 13.5 17.6 9.5 24 9.5z"/>
-              <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7C43.5 37.3 46.5 31.3 46.5 24.5z"/>
-              <path fill="#FBBC05" d="M10.3 28.8A14.5 14.5 0 019.5 24c0-1.7.3-3.3.8-4.8L2.9 13.5A23.5 23.5 0 00.5 24c0 3.8.9 7.3 2.4 10.5l7.4-5.7z"/>
-              <path fill="#34A853" d="M24 47.5c6 0 11-2 14.7-5.3l-7.4-5.7c-2 1.3-4.5 2-7.3 2-6.4 0-11.8-4-13.7-9.7l-7.4 5.7C6.9 42 14.8 47.5 24 47.5z"/>
-            </svg>
-            Sign up with Google
+          {error && (
+            <div className="auth-error" role="alert">
+              {error}
+            </div>
+          )}
+
+          <button
+            className="auth-social-btn"
+            onClick={handleGoogleSignup}
+            disabled={googleLoading || loading}
+          >
+            {googleLoading ? (
+              <><span className="spinner" /> Connecting...</>
+            ) : (
+              <>
+                <svg width="18" height="18" viewBox="0 0 48 48">
+                  <path fill="#EA4335" d="M24 9.5c3.6 0 6.5 1.4 8.4 3.3l6.3-6.3C35.2 2.9 30 .5 24 .5 14.8.5 6.9 6 2.8 14l7.4 5.7C12.2 13.5 17.6 9.5 24 9.5z"/>
+                  <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7C43.5 37.3 46.5 31.3 46.5 24.5z"/>
+                  <path fill="#FBBC05" d="M10.3 28.8A14.5 14.5 0 019.5 24c0-1.7.3-3.3.8-4.8L2.9 13.5A23.5 23.5 0 00.5 24c0 3.8.9 7.3 2.4 10.5l7.4-5.7z"/>
+                  <path fill="#34A853" d="M24 47.5c6 0 11-2 14.7-5.3l-7.4-5.7c-2 1.3-4.5 2-7.3 2-6.4 0-11.8-4-13.7-9.7l-7.4 5.7C6.9 42 14.8 47.5 24 47.5z"/>
+                </svg>
+                Sign up with Google
+              </>
+            )}
           </button>
 
           <div className="divider-text">or register with email</div>
 
+          {/* Role selector */}
           <div className="auth-roles">
             <label className="input-label">I am a...</label>
-            <div className="auth-roles__grid">
+            <div className="auth-roles__grid" style={{gridTemplateColumns:"repeat(2,1fr)"}}>
               {ROLES.map(r => (
                 <button key={r.value} type="button"
                   className={`auth-role-btn ${form.role===r.value?"auth-role-btn--active":""}`}
@@ -112,8 +152,8 @@ function Register() {
               <a href="#" className="auth-link">Terms of Service</a> and{" "}
               <a href="#" className="auth-link">Privacy Policy</a>.
             </p>
-            <button type="submit" className="btn btn-primary auth-submit" disabled={loading}>
-              {loading ? <><span className="spinner"></span> Creating account...</> : "Create Free Account →"}
+            <button type="submit" className="btn btn-primary auth-submit" disabled={loading || googleLoading}>
+              {loading ? <><span className="spinner"/> Creating account...</> : "Create Free Account →"}
             </button>
           </form>
 

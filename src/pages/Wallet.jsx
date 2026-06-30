@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { getTransactionsForUser, depositSimulation, withdrawSimulation, transferBetweenUsers } from "../services/transactionService";
+import { getGlobalCounts } from "../services/productService";
 import "./Dashboard.css";
 
 const HISTORY = [
@@ -38,6 +41,43 @@ function MiniLineChart() {
 
 function Wallet() {
   const [modal, setModal] = useState(null);
+  const { wallet, user, refreshWallet } = useAuth();
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [txError, setTxError] = useState("");
+  const [toast, setToast] = useState("");
+  const [amountInput, setAmountInput] = useState("");
+  const [recipientInput, setRecipientInput] = useState("");
+  const [noteInput, setNoteInput] = useState("");
+
+  const balance = wallet?.balance ?? 0;
+  const formattedBalance = "₹" + Number(balance).toLocaleString("en-IN");
+  const walletUserId = user?.id ? `USR-${user.id.slice(0,8).toUpperCase()}-CRESOX` : "USR-XXXXXX-CRESOX";
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      if (!user) return;
+      setLoading(true);
+      try {
+        const txs = await getTransactionsForUser(user.id, 50);
+        if (!mounted) return;
+        setTransactions(txs || []);
+      } catch (err) {
+        console.error("Failed to load transactions:", err.message);
+        setTxError(err.message || "Failed to load transactions");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+    load();
+    return () => (mounted = false);
+  }, [user]);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 3000);
+  };
 
   return (
     <div>
@@ -57,19 +97,24 @@ function Wallet() {
             <span className="badge badge-green"><span className="dot-live"></span> Active</span>
           </div>
           <div style={{fontSize:38,fontWeight:800,letterSpacing:"-0.04em",color:"var(--text-primary)",marginBottom:"var(--sp-1)"}}>
-            ₹2,41,320
+            {formattedBalance}
           </div>
           <div style={{fontSize:13,color:"var(--text-muted)",marginBottom:"var(--sp-6)"}}>
-            ↑ ₹12,500 received today
+            Initial balance · CresoX Wallet
           </div>
           <MiniLineChart/>
           <div style={{display:"flex",gap:"var(--sp-3)",marginTop:"var(--sp-5)",flexWrap:"wrap"}}>
             {ACTIONS.map(a => (
-              <button key={a.label} className="btn btn-secondary"
-                onClick={() => setModal(a.label)}>
-                {a.icon} {a.label}
-              </button>
-            ))}
+                <button key={a.label} className="btn btn-secondary"
+                  onClick={() => {
+                    setAmountInput("");
+                    setRecipientInput("");
+                    setNoteInput("");
+                    setModal(a.label);
+                  }}>
+                  {a.icon} {a.label}
+                </button>
+              ))}
           </div>
         </div>
 
@@ -105,32 +150,40 @@ function Wallet() {
           </div>
           <button className="btn btn-ghost btn-sm">Export CSV</button>
         </div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>ID</th><th>Type</th><th>Party</th>
-              <th>Amount</th><th>Status</th><th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {HISTORY.map(tx => (
-              <tr key={tx.id}>
-                <td style={{fontFamily:"monospace",color:"var(--text-muted)",fontSize:12}}>{tx.id}</td>
-                <td>{tx.type}</td>
-                <td style={{fontWeight:600,color:"var(--text-primary)"}}>{tx.party}</td>
-                <td style={{fontWeight:700,fontFamily:"monospace",color:tx.amount.startsWith("+")?"var(--green)":"var(--text-primary)"}}>
-                  {tx.amount}
-                </td>
-                <td>
-                  <span className={`status-badge status-badge--${tx.status}`}>
-                    {tx.status === "verified" ? "✓ Verified" : "⏳ Pending"}
-                  </span>
-                </td>
-                <td style={{color:"var(--text-muted)"}}>{tx.date}</td>
+        {loading ? (
+          <div style={{textAlign:"center",padding:"var(--sp-6)",color:"var(--text-muted)"}}>Loading transactions...</div>
+        ) : txError ? (
+          <div style={{textAlign:"center",padding:"var(--sp-6)",color:"var(--red)"}}>{txError}</div>
+        ) : transactions.length === 0 ? (
+          <div style={{textAlign:"center",padding:"var(--sp-6)",color:"var(--text-muted)"}}>No transactions yet.</div>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>ID</th><th>Type</th><th>Party</th>
+                <th>Amount</th><th>Status</th><th>Date</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {transactions.map(tx => (
+                <tr key={tx.id}>
+                  <td style={{fontFamily:"monospace",color:"var(--text-muted)",fontSize:12}}>{tx.id}</td>
+                  <td>{tx.type}</td>
+                  <td style={{fontWeight:600,color:"var(--text-primary)"}}>{tx.counterparty_name || tx.counterparty?.full_name || tx.counterparty?.email || '—'}</td>
+                  <td style={{fontWeight:700,fontFamily:"monospace",color:(tx.amount>0)?"var(--green)":"var(--text-primary)"}}>
+                    {tx.amount>0 ? `+₹${Number(tx.amount).toLocaleString('en-IN')}` : `-₹${Math.abs(Number(tx.amount)).toLocaleString('en-IN')}`}
+                  </td>
+                  <td>
+                    <span className={`status-badge status-badge--${tx.status}`}>
+                      {tx.status === "verified" ? "✓ Verified" : "⏳ Pending"}
+                    </span>
+                  </td>
+                  <td style={{color:"var(--text-muted)"}}>{new Date(tx.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Modal */}
@@ -148,22 +201,22 @@ function Wallet() {
                 <>
                   <div className="auth-field">
                     <label className="input-label">Recipient Email or User ID</label>
-                    <input className="input" placeholder="user@example.com or USR-12345"/>
+                    <input className="input" placeholder="user@example.com or user-id" value={recipientInput} onChange={e => setRecipientInput(e.target.value)} />
                   </div>
                   <div className="auth-field">
                     <label className="input-label">Amount (₹)</label>
-                    <input className="input" type="number" placeholder="0.00"/>
+                    <input className="input" type="number" placeholder="0.00" value={amountInput} onChange={e => setAmountInput(e.target.value)} />
                   </div>
                   <div className="auth-field">
                     <label className="input-label">Note (optional)</label>
-                    <input className="input" placeholder="Invoice #123..."/>
+                    <input className="input" placeholder="Invoice #123..." value={noteInput} onChange={e => setNoteInput(e.target.value)} />
                   </div>
                 </>
               )}
               {modal === "Receive" && (
                 <div style={{textAlign:"center",padding:"var(--sp-4)"}}>
                   <div style={{fontFamily:"monospace",fontSize:14,color:"var(--blue)",background:"var(--blue-light)",padding:"var(--sp-4)",borderRadius:"var(--r-md)",border:"1px solid var(--border-focus)",wordBreak:"break-all"}}>
-                    USR-JM-4821-CRESOX
+                    {walletUserId}
                   </div>
                   <p style={{fontSize:13,color:"var(--text-muted)",marginTop:"var(--sp-3)"}}>
                     Share this ID with the sender. Funds arrive instantly.
@@ -181,13 +234,47 @@ function Wallet() {
                   </div>
                   <div className="auth-field">
                     <label className="input-label">Amount (₹)</label>
-                    <input className="input" type="number" placeholder="Minimum ₹100"/>
+                    <input className="input" type="number" placeholder="Minimum ₹100" value={amountInput} onChange={e => setAmountInput(e.target.value)} />
                   </div>
                 </>
               )}
-              <button className="btn btn-primary auth-submit" onClick={() => setModal(null)}>
-                Confirm {modal}
-              </button>
+              <div style={{display:"flex",gap:12}}>
+                <button className="btn btn-primary auth-submit" onClick={async () => {
+                  try {
+                    if (!user) throw new Error('Please log in');
+                    if (modal === 'Deposit') {
+                      const amt = Number(amountInput);
+                      if (!amt || amt <= 0) throw new Error('Enter a valid amount');
+                      await depositSimulation(user.id, amt);
+                      await refreshWallet();
+                      showToast('Deposit simulated');
+                    } else if (modal === 'Withdraw') {
+                      const amt = Number(amountInput);
+                      if (!amt || amt <= 0) throw new Error('Enter a valid amount');
+                      await withdrawSimulation(user.id, amt);
+                      await refreshWallet();
+                      showToast('Withdraw simulated');
+                    } else if (modal === 'Send') {
+                      const amt = Number(amountInput);
+                      if (!recipientInput) throw new Error('Enter recipient');
+                      if (!amt || amt <= 0) throw new Error('Enter a valid amount');
+                      await transferBetweenUsers(user.id, recipientInput, amt, noteInput);
+                      await refreshWallet();
+                      showToast('Transfer completed');
+                    }
+                    // reload transactions
+                    const txs = await getTransactionsForUser(user.id, 50);
+                    setTransactions(txs || []);
+                    setModal(null);
+                  } catch (err) {
+                    console.error(err);
+                    showToast(err.message || 'Action failed');
+                  }
+                }}>
+                  Confirm {modal}
+                </button>
+                <button className="btn btn-ghost" onClick={() => setModal(null)}>Cancel</button>
+              </div>
             </div>
           </div>
         </div>

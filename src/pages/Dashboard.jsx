@@ -1,13 +1,11 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { getRecentProducts, getOrdersCounts, getRecentOrders, getGlobalCounts } from "../services/productService";
+import { getHashCount } from "../services/hashService";
+import { getRecentProfiles } from "../services/profileService";
+import { getRecentActivity } from "../services/activityService";
 import "./Dashboard.css";
-
-const TRANSACTIONS = [
-  { id:"#4821", type:"Incoming", party:"Rahul Kumar",     amount:"+₹12,500", status:"verified", date:"27 Jun 2026" },
-  { id:"#4820", type:"Purchase", party:"FinTechPro Suite", amount:"-₹2,500",  status:"verified", date:"27 Jun 2026" },
-  { id:"#4819", type:"Deposit",  party:"HDFC Bank",        amount:"+₹50,000", status:"pending",  date:"26 Jun 2026" },
-  { id:"#4818", type:"Outgoing", party:"Priya Sharma",     amount:"-₹8,000",  status:"verified", date:"25 Jun 2026" },
-  { id:"#4817", type:"Purchase", party:"CreditPulse",      amount:"-₹999",    status:"verified", date:"24 Jun 2026" },
-];
 
 function MiniChart() {
   const pts = [60,50,58,40,38,28,20,14,8];
@@ -38,13 +36,69 @@ function MiniChart() {
   );
 }
 
+function formatBalance(amount) {
+  if (!amount && amount !== 0) return "—";
+  return "₹" + Number(amount).toLocaleString("en-IN");
+}
+
 function Dashboard() {
+  const { profile, wallet, user } = useAuth();
+  const [recentProducts, setRecentProducts] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [ordersSummary, setOrdersSummary] = useState({ received: 0, purchased: 0 });
+  const [hashRecords, setHashRecords] = useState(0);
+  const [globalCounts, setGlobalCounts] = useState({ products: 0, orders: 0 });
+  const [recentUsers, setRecentUsers] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loadingData, setLoadingData] = useState(true);
+
+  const greeting = (() => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good Morning";
+    if (h < 17) return "Good Afternoon";
+    return "Good Evening";
+  })();
+
+  const firstName = profile?.full_name?.split(" ")[0] || "there";
+
+  useEffect(() => {
+    if (!user) return;
+    const load = async () => {
+      try {
+        const [recentProds, recentOrds, counts, hashCount, globalCounts, recentUsersData, activity] = await Promise.all([
+          getRecentProducts(3),
+          getRecentOrders(user.id, 5),
+          getOrdersCounts(user.id),
+          getHashCount(),
+          getGlobalCounts(),
+          getRecentProfiles(5),
+          getRecentActivity(8),
+        ]);
+
+        setRecentProducts(recentProds || []);
+        setRecentOrders(recentOrds || []);
+        setRecentUsers(recentUsersData || []);
+        setRecentActivity(activity || []);
+        setOrdersSummary(counts || { received: 0, purchased: 0 });
+        setHashRecords(hashCount || 0);
+        setGlobalCounts(globalCounts || { products: 0, orders: 0 });
+      } catch (err) {
+        console.error("Dashboard load error:", err.message);
+      } finally {
+        setLoadingData(false);
+      }
+    };
+    load();
+  }, [user]);
+
+  const walletBalance = wallet?.balance ?? 0;
+
   return (
     <div>
       <div className="page-header">
         <div className="page-header__row">
           <div>
-            <h1>Good Morning, Jonathan 👋</h1>
+            <h1>{greeting}, {firstName} 👋</h1>
             <p>Here's what's happening with your portfolio today.</p>
           </div>
           <Link to="/dashboard/wallet" className="btn btn-primary">
@@ -59,10 +113,42 @@ function Dashboard() {
       {/* KPIs */}
       <div className="kpi-grid">
         {[
-          { label:"Portfolio Value", value:"₹12.4 Cr",   change:"↑ 14.5% this month",  up:true,    icon:"📈", bg:"var(--blue-light)" },
-          { label:"Wallet Balance",  value:"₹2,41,320",  change:"↑ ₹12,500 today",      up:true,    icon:"💳", bg:"var(--green-light)" },
-          { label:"Transactions",    value:"12,847",      change:"↑ 234 this week",       up:true,    icon:"⚡", bg:"var(--amber-light)" },
-          { label:"Marketplace",     value:"7 Orders",   change:"2 pending review",      up:null,   icon:"🏪", bg:"var(--bg-section)" },
+          {
+            label: "Wallet Balance",
+            value: formatBalance(walletBalance),
+            change: "Initial deposit",
+            up: true,
+            icon: "💳",
+            bg: "var(--green-light)",
+          },
+          {
+            label: "My Products",
+            value: String(profile ? (recentProducts.length) : 0),
+            change: "Latest listings",
+            up: null,
+            icon: "📦",
+            bg: "var(--blue-light)",
+          },
+          {
+            label: "Orders",
+            value: String((ordersSummary.received || 0) + (ordersSummary.purchased || 0)),
+            change: `${ordersSummary.received || 0} received · ${ordersSummary.purchased || 0} purchased`,
+            up: null,
+            icon: "🏪",
+            bg: "var(--bg-section)",
+          },
+          {
+            label: "Account Role",
+            value: profile?.role
+              ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1)
+              : "—",
+            change: profile?.verification_status
+              ? `Status: ${profile.verification_status}`
+              : "Active",
+            up: null,
+            icon: "👤",
+            bg: "var(--amber-light)",
+          },
         ].map(k => (
           <div className="kpi-card" key={k.label}>
             <div className="kpi-card__top">
@@ -106,12 +192,10 @@ function Dashboard() {
             <span className="badge badge-green"><span className="dot-live"></span> Live</span>
           </div>
           {[
-            { label:"Latest Block",    value:"#91,432" },
-            { label:"Transactions/s",  value:"142 TPS" },
-            { label:"Hash Rate",       value:"84.2 GH/s" },
-            { label:"Avg. Block Time", value:"1.18s" },
-            { label:"Active Nodes",    value:"1,284" },
-            { label:"Your Verified",   value:"12,847 txns" },
+            { label:"Blockchain Records", value: String(hashRecords) },
+            { label:"Total Products", value: String((globalCounts?.products) ?? "—") },
+            { label:"Total Orders", value: String((globalCounts?.orders) ?? "—") },
+            { label:"Your Wallet",     value: formatBalance(walletBalance) },
           ].map(s => (
             <div key={s.label} style={{display:"flex",justifyContent:"space-between",padding:"10px 0",borderBottom:"1px solid var(--border)",alignItems:"center"}}>
               <span style={{fontSize:13,color:"var(--text-muted)",fontWeight:500}}>{s.label}</span>
@@ -121,39 +205,157 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Transactions */}
+      {/* Recent Products */}
+      <div className="content-card" style={{marginBottom:"var(--sp-5)"}}>
+        <div className="content-card__header">
+          <div>
+            <div className="content-card__title">Recent Products</div>
+            <div className="content-card__sub">Latest listings in the marketplace</div>
+          </div>
+          <Link to="/dashboard/marketplace" className="btn btn-ghost btn-sm">View all →</Link>
+        </div>
+        {loadingData ? (
+          <div style={{textAlign:"center",padding:"var(--sp-8)",color:"var(--text-muted)"}}>
+            Loading...
+          </div>
+        ) : recentProducts.length === 0 ? (
+          <div style={{textAlign:"center",padding:"var(--sp-8)",color:"var(--text-muted)"}}>
+            No products listed yet.{" "}
+            <Link to="/dashboard/marketplace" className="auth-link">Browse marketplace →</Link>
+          </div>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Product</th><th>Category</th><th>Price</th><th>Verified</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentProducts.map(p => (
+                <tr key={p.id}>
+                  <td style={{fontWeight:600,color:"var(--text-primary)"}}>{p.title}</td>
+                  <td><span className="badge badge-gray">{p.category || "—"}</span></td>
+                  <td style={{fontFamily:"monospace",fontWeight:700}}>
+                    {p.price ? `₹${Number(p.price).toLocaleString("en-IN")}` : "—"}
+                  </td>
+                  <td>
+                    <div style={{display:'flex',flexDirection:'column',gap:6}}>
+                      <div>
+                        {p.blockchain_hash ? (
+                          <span className="status-badge status-badge--verified">✔ Blockchain Verified</span>
+                        ) : (
+                          <span className="status-badge status-badge--pending">⏳ Pending</span>
+                        )}
+                      </div>
+                      {p.seller?.verification_status === 'Verified' ? (
+                        <div><span className="status-badge status-badge--verified">Verified Seller</span></div>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Recent Users + Activity */}
+      <div className="two-col" style={{marginBottom:"var(--sp-5)"}}>
+        <div className="content-card">
+          <div className="content-card__header">
+            <div>
+              <div className="content-card__title">Recently Registered Users</div>
+              <div className="content-card__sub">Newest accounts on the platform</div>
+            </div>
+            <Link to="/dashboard/profile" className="btn btn-ghost btn-sm">View all →</Link>
+          </div>
+          {recentUsers.length === 0 ? (
+            <div style={{textAlign:'center',padding:'var(--sp-6)',color:'var(--text-muted)'}}>No recent users.</div>
+          ) : (
+            <ul style={{listStyle:'none',padding:0,margin:0}}>
+              {recentUsers.map(u => (
+                <li key={u.id} style={{display:'flex',alignItems:'center',gap:12,padding:'8px 0',borderBottom:'1px solid var(--border)'}}>
+                  <div style={{width:36,height:36,borderRadius:8,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center'}}>{(u.full_name||'?')[0]}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:700}}>{u.full_name}</div>
+                    <div style={{fontSize:12,color:'var(--text-muted)'}}>{u.email}</div>
+                  </div>
+                  <div style={{fontSize:12,color:'var(--text-muted)'}}>{new Date(u.created_at).toLocaleDateString()}</div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="content-card">
+          <div className="content-card__header">
+            <div>
+              <div className="content-card__title">Recent Activity</div>
+              <div className="content-card__sub">Latest actions across the platform</div>
+            </div>
+            <Link to="/dashboard/analytics" className="btn btn-ghost btn-sm">More →</Link>
+          </div>
+          {recentActivity.length === 0 ? (
+            <div style={{textAlign:'center',padding:'var(--sp-6)',color:'var(--text-muted)'}}>No recent activity.</div>
+          ) : (
+            <ul style={{listStyle:'none',padding:0,margin:0}}>
+              {recentActivity.map(a => (
+                <li key={`${a.type}-${a.id}`} style={{padding:'8px 0',borderBottom:'1px solid var(--border)'}}>
+                  <div style={{display:'flex',justifyContent:'space-between'}}>
+                    <div style={{fontWeight:700}}>{a.type === 'product' ? `New listing: ${a.title}` : a.type === 'order' ? `Order: ${a.title}` : a.type === 'transaction' ? `Tx: ${a.title}` : `Hash: ${a.title}`}</div>
+                    <div style={{fontSize:12,color:'var(--text-muted)'}}>{new Date(a.created_at).toLocaleString()}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+
+      {/* Recent Orders */}
       <div className="content-card">
         <div className="content-card__header">
           <div>
-            <div className="content-card__title">Recent Transactions</div>
-            <div className="content-card__sub">Last 5 transactions</div>
+            <div className="content-card__title">Recent Orders</div>
+            <div className="content-card__sub">Last {recentOrders.length} orders</div>
           </div>
-          <Link to="/dashboard/wallet" className="btn btn-ghost btn-sm">View all →</Link>
         </div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>ID</th><th>Type</th><th>Party</th>
-              <th>Amount</th><th>Status</th><th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {TRANSACTIONS.map(tx => (
-              <tr key={tx.id}>
-                <td style={{fontFamily:"monospace",color:"var(--text-muted)"}}>{tx.id}</td>
-                <td>{tx.type}</td>
-                <td style={{fontWeight:600,color:"var(--text-primary)"}}>{tx.party}</td>
-                <td style={{fontFamily:"monospace",fontWeight:700,color:tx.amount.startsWith("+")?'var(--green)':'var(--text-primary)'}}>{tx.amount}</td>
-                <td>
-                  <span className={`status-badge status-badge--${tx.status}`}>
-                    {tx.status === "verified" ? "✓ Verified" : "⏳ Pending"}
-                  </span>
-                </td>
-                <td style={{color:"var(--text-muted)"}}>{tx.date}</td>
+        {loadingData ? (
+          <div style={{textAlign:"center",padding:"var(--sp-8)",color:"var(--text-muted)"}}>
+            Loading...
+          </div>
+        ) : recentOrders.length === 0 ? (
+          <div style={{textAlign:"center",padding:"var(--sp-8)",color:"var(--text-muted)"}}>
+            No orders yet.
+          </div>
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Product</th><th>Role</th><th>Price</th><th>Status</th><th>Date</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {recentOrders.map(o => (
+                <tr key={o.id}>
+                  <td style={{fontWeight:600,color:"var(--text-primary)"}}>{o.product?.title || "—"}</td>
+                  <td>{o.buyer_id === user?.id ? "Buyer" : "Seller"}</td>
+                  <td style={{fontFamily:"monospace",fontWeight:700}}>
+                    {o.product?.price ? `₹${Number(o.product.price).toLocaleString("en-IN")}` : "—"}
+                  </td>
+                  <td>
+                    <span className={`status-badge status-badge--${o.status}`}>
+                      {o.status === "verified" ? "✓ Verified" : o.status === "pending" ? "⏳ Pending" : o.status}
+                    </span>
+                  </td>
+                  <td style={{color:"var(--text-muted)"}}>
+                    {new Date(o.created_at).toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

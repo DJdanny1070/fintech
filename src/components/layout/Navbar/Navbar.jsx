@@ -69,10 +69,14 @@ function Navbar() {
   }, []);
 
   useEffect(() => {
-    setMobileOpen(false);
-    setSolutionsOpen(false);
-    setMobileSolutionsOpen(false);
-  }, [location]);
+    if (!location.key) return;
+    const cleanupId = setTimeout(() => {
+      setMobileOpen(false);
+      setSolutionsOpen(false);
+      setMobileSolutionsOpen(false);
+    }, 0);
+    return () => clearTimeout(cleanupId);
+  }, [location.key]);
 
   useEffect(() => {
     if (!solutionsOpen) return;

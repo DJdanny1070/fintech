@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import "./Auth.css";
 
 const FEATURES = [
@@ -11,13 +12,41 @@ const FEATURES = [
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login, loginWithGoogle } = useAuth();
+
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  // Redirect to where the user was trying to go, or dashboard
+  const from = location.state?.from?.pathname || "/dashboard";
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    setTimeout(() => navigate("/dashboard"), 1000);
+    try {
+      await login(form.email, form.password);
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError(err.message || "Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    setGoogleLoading(true);
+    try {
+      await loginWithGoogle();
+      // OAuth redirect — browser will leave this page
+    } catch (err) {
+      setError(err.message || "Google login failed.");
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -64,14 +93,30 @@ function Login() {
             <p className="auth-card__sub">Welcome back. Enter your credentials to continue.</p>
           </div>
 
-          <button className="auth-social-btn">
-            <svg width="18" height="18" viewBox="0 0 48 48">
-              <path fill="#EA4335" d="M24 9.5c3.6 0 6.5 1.4 8.4 3.3l6.3-6.3C35.2 2.9 30 .5 24 .5 14.8.5 6.9 6 2.8 14l7.4 5.7C12.2 13.5 17.6 9.5 24 9.5z"/>
-              <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7C43.5 37.3 46.5 31.3 46.5 24.5z"/>
-              <path fill="#FBBC05" d="M10.3 28.8A14.5 14.5 0 019.5 24c0-1.7.3-3.3.8-4.8L2.9 13.5A23.5 23.5 0 00.5 24c0 3.8.9 7.3 2.4 10.5l7.4-5.7z"/>
-              <path fill="#34A853" d="M24 47.5c6 0 11-2 14.7-5.3l-7.4-5.7c-2 1.3-4.5 2-7.3 2-6.4 0-11.8-4-13.7-9.7l-7.4 5.7C6.9 42 14.8 47.5 24 47.5z"/>
-            </svg>
-            Continue with Google
+          {error && (
+            <div className="auth-error" role="alert">
+              {error}
+            </div>
+          )}
+
+          <button
+            className="auth-social-btn"
+            onClick={handleGoogleLogin}
+            disabled={googleLoading || loading}
+          >
+            {googleLoading ? (
+              <><span className="spinner" /> Connecting...</>
+            ) : (
+              <>
+                <svg width="18" height="18" viewBox="0 0 48 48">
+                  <path fill="#EA4335" d="M24 9.5c3.6 0 6.5 1.4 8.4 3.3l6.3-6.3C35.2 2.9 30 .5 24 .5 14.8.5 6.9 6 2.8 14l7.4 5.7C12.2 13.5 17.6 9.5 24 9.5z"/>
+                  <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.4 5.7C43.5 37.3 46.5 31.3 46.5 24.5z"/>
+                  <path fill="#FBBC05" d="M10.3 28.8A14.5 14.5 0 019.5 24c0-1.7.3-3.3.8-4.8L2.9 13.5A23.5 23.5 0 00.5 24c0 3.8.9 7.3 2.4 10.5l7.4-5.7z"/>
+                  <path fill="#34A853" d="M24 47.5c6 0 11-2 14.7-5.3l-7.4-5.7c-2 1.3-4.5 2-7.3 2-6.4 0-11.8-4-13.7-9.7l-7.4 5.7C6.9 42 14.8 47.5 24 47.5z"/>
+                </svg>
+                Continue with Google
+              </>
+            )}
           </button>
 
           <div className="divider-text">or sign in with email</div>
@@ -90,8 +135,8 @@ function Login() {
               <input className="input" type="password" placeholder="Enter your password"
                 value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
             </div>
-            <button type="submit" className="btn btn-primary auth-submit" disabled={loading}>
-              {loading ? <><span className="spinner"></span> Signing in...</> : "Sign In →"}
+            <button type="submit" className="btn btn-primary auth-submit" disabled={loading || googleLoading}>
+              {loading ? <><span className="spinner"/> Signing in...</> : "Sign In →"}
             </button>
           </form>
 
