@@ -1,26 +1,25 @@
-/* ── Our Services ───────────────────────────────────────────── */
+/* ── Real-World Assets Section ───────────────────────────────── */
 
-.services {
-  padding: 96px 0 104px;
-  background: var(--bg-section);
+.rwa {
+  background: #ffffff;
   border-bottom: 1px solid var(--border);
 }
 
-.services__container {
+.rwa__container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 var(--sp-6);
+  padding: 96px var(--sp-6) 88px;
 }
 
-/* ── Section Header ─────────────────────────────────────────── */
+/* ── Header ─────────────────────────────────────────────────── */
 
-.services__header {
+.rwa__header {
   text-align: center;
   max-width: 620px;
   margin: 0 auto var(--sp-16);
 }
 
-.services__eyebrow {
+.rwa__eyebrow {
   display: inline-block;
   font-size: 13px;
   font-weight: 600;
@@ -34,7 +33,7 @@
   margin-bottom: var(--sp-4);
 }
 
-.services__title {
+.rwa__title {
   font-size: clamp(26px, 3.5vw, 36px);
   font-weight: 700;
   letter-spacing: -0.022em;
@@ -43,60 +42,27 @@
   line-height: 1.2;
 }
 
-.services__subtitle {
+.rwa__subtitle {
   font-size: 16px;
-  font-weight: 400;
   line-height: 1.75;
   color: var(--text-muted);
 }
 
-/* ── Group ───────────────────────────────────────────────────── */
+/* ── Grid — 5 cards, last row centred ────────────────────────── */
 
-.services__group {
-  margin-bottom: var(--sp-12);
-}
-
-.services__group:last-child {
-  margin-bottom: 0;
-}
-
-.services__group-label {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--blue);
-  margin-bottom: var(--sp-5);
-  display: flex;
-  align-items: center;
-  gap: var(--sp-3);
-}
-
-.services__group-label::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* ── Grids ───────────────────────────────────────────────────── */
-
-.services__grid {
+.rwa__grid {
   display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--sp-5);
 }
 
-.services__grid--3 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.services__grid--2 {
-  grid-template-columns: repeat(2, 1fr);
-}
+/* Push the last two cards to the centre row (col 1 & 2 of 3) */
+.rwa__card:nth-child(4) { grid-column: 1; }
+.rwa__card:nth-child(5) { grid-column: 2; }
 
 /* ── Card ────────────────────────────────────────────────────── */
 
-.services__card {
+.rwa__card {
   background: #ffffff;
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
@@ -108,52 +74,37 @@
   gap: var(--sp-4);
 }
 
-.services__card:hover {
+.rwa__card:hover {
   border-color: var(--blue-mid);
   box-shadow: 0 8px 24px rgba(7, 90, 216, 0.09);
   transform: translateY(-4px);
 }
 
-/* Advisory cards get a slightly warmer tint */
-.services__card--advisory {
-  background: linear-gradient(135deg, #ffffff 0%, #f0f6ff 100%);
-}
-
 /* ── Icon ────────────────────────────────────────────────────── */
 
-.services__icon {
+.rwa__icon {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 48px;
   height: 48px;
   border-radius: var(--r-md);
-  flex-shrink: 0;
-}
-
-.services__icon--product {
   background: var(--blue-light);
   color: var(--blue);
-}
-
-.services__icon--advisory {
-  background: #eff6ff;
-  color: var(--blue-dark);
-  border: 1px solid var(--blue-mid);
+  flex-shrink: 0;
 }
 
 /* ── Text ────────────────────────────────────────────────────── */
 
-.services__card-title {
+.rwa__card-title {
   font-size: 17px;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.3;
 }
 
-.services__card-desc {
+.rwa__card-desc {
   font-size: 15px;
-  font-weight: 400;
   line-height: 1.65;
   color: var(--text-muted);
 }
@@ -161,26 +112,23 @@
 /* ── Responsive ──────────────────────────────────────────────── */
 
 @media (max-width: 960px) {
-  .services__grid--3 {
+  .rwa__grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .rwa__card:nth-child(4),
+  .rwa__card:nth-child(5) {
+    grid-column: auto;
   }
 }
 
-@media (max-width: 600px) {
-  .services {
-    padding: 72px 0 80px;
+@media (max-width: 560px) {
+  .rwa__container {
+    padding: 72px var(--sp-4) 64px;
   }
-
-  .services__container {
-    padding: 0 var(--sp-4);
-  }
-
-  .services__grid--3,
-  .services__grid--2 {
+  .rwa__grid {
     grid-template-columns: 1fr;
   }
-
-  .services__header {
+  .rwa__header {
     margin-bottom: var(--sp-12);
   }
 }

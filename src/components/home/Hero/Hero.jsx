@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, PhoneCall } from "lucide-react";
 import "./Hero.css";
 
 function Hero() {
@@ -7,23 +7,27 @@ function Hero() {
     <section className="hero">
       <div className="hero__container">
         <div className="hero__content hero__animate">
+          {/* Eyebrow */}
+          <span className="hero__eyebrow">CresoX Fintech Private Limited</span>
+
           <h1 className="hero__headline">
-            CresoX — The Complete Financial Ecosystem
+            Empowering Investments Through{" "}
+            <span className="hero__headline-accent">Tokenization</span>
           </h1>
 
           <p className="hero__description">
-            Manage your wallet, trade on a verified marketplace, and record every
-            transaction on the blockchain — all from one secure platform built for
-            startups, businesses, and developers across India.
+            Building innovative fintech solutions that bridge real-world assets
+            with modern investment opportunities through secure tokenization.
           </p>
 
           <div className="hero__actions">
-            <Link to="/register" className="btn btn-primary btn-lg hero__btn">
-              Get Started
-            </Link>
-            <a href="#marketplace" className="btn btn-secondary btn-lg hero__btn">
-              Explore Marketplace
+            <a href="#solutions" className="btn btn-primary btn-lg hero__btn">
+              Explore Our Solutions
               <ArrowRight size={16} strokeWidth={1.75} />
+            </a>
+            <a href="#contact" className="btn btn-secondary btn-lg hero__btn">
+              <PhoneCall size={16} strokeWidth={1.75} />
+              Contact Us
             </a>
           </div>
         </div>

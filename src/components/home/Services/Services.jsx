@@ -1,68 +1,89 @@
 import {
-  Wallet,
+  Coins,
   ShoppingBag,
-  Building2,
-  Link2,
-  Code2,
-  BarChart3,
+  Layers,
+  Lightbulb,
+  BarChart2,
 } from "lucide-react";
 import "./Services.css";
 
-const SERVICES = [
+const FINTECH_PRODUCTS = [
   {
-    icon: Wallet,
-    title: "Digital Wallet",
-    desc: "Hold, send, and receive funds with real-time balance updates and multi-account support.",
+    icon: Coins,
+    title: "Tokenization of Real-World Assets",
+    desc: "Convert physical assets into secure digital tokens, enabling fractional ownership and improved investment accessibility.",
   },
   {
     icon: ShoppingBag,
-    title: "Marketplace",
-    desc: "Browse verified listings, compare sellers, and complete purchases with instant settlement.",
+    title: "Private Token Trading Marketplace",
+    desc: "A secure marketplace that facilitates trading of tokenized assets among eligible investors.",
   },
   {
-    icon: Building2,
-    title: "Business Banking",
-    desc: "Team permissions, invoicing, vendor payments, and consolidated business account controls.",
+    icon: Layers,
+    title: "Tokenization of Other Assets",
+    desc: "Customized tokenization solutions for various eligible asset classes beyond traditional investments.",
+  },
+];
+
+const ADVISORY_SERVICES = [
+  {
+    icon: Lightbulb,
+    title: "Consultancy",
+    desc: "Strategic guidance on fintech adoption, tokenization, digital asset structuring, and investment models.",
   },
   {
-    icon: Link2,
-    title: "Blockchain Verification",
-    desc: "Every transaction receives an on-chain hash proof — auditable without exposing private data.",
-  },
-  {
-    icon: Code2,
-    title: "Developer APIs",
-    desc: "REST endpoints, webhooks, and sandbox environments to embed CresoX into your product.",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics",
-    desc: "Track cash flow, marketplace activity, and portfolio performance with exportable reports.",
+    icon: BarChart2,
+    title: "Financial Simulations",
+    desc: "Data-driven financial modeling and investment simulations to support informed business and investment decisions.",
   },
 ];
 
 function Services() {
   return (
-    <section className="services" id="developers">
+    <section className="services" id="services">
       <div className="services__container">
+        {/* Section Header */}
         <div className="services__header">
-          <h2 className="services__title">Everything you need in one platform</h2>
+          <span className="services__eyebrow">Our Services</span>
+          <h2 className="services__title">
+            Comprehensive Fintech Solutions
+          </h2>
           <p className="services__subtitle">
-            Six core services that power the CresoX financial ecosystem for individuals,
-            businesses, and developers.
+            From real-world asset tokenization to strategic advisory — we
+            deliver end-to-end solutions that unlock new investment potential.
           </p>
         </div>
 
-        <div className="services__grid">
-          {SERVICES.map(({ icon: Icon, title, desc }) => (
-            <article className="services__card" key={title}>
-              <div className="services__icon">
-                <Icon size={20} strokeWidth={1.75} />
-              </div>
-              <h3 className="services__card-title">{title}</h3>
-              <p className="services__card-desc">{desc}</p>
-            </article>
-          ))}
+        {/* ── Fintech Products ─────────────────────────────────── */}
+        <div className="services__group">
+          <h3 className="services__group-label">Fintech Products</h3>
+          <div className="services__grid services__grid--3">
+            {FINTECH_PRODUCTS.map(({ icon: Icon, title, desc }) => (
+              <article className="services__card" key={title}>
+                <div className="services__icon services__icon--product">
+                  <Icon size={22} strokeWidth={1.75} />
+                </div>
+                <h4 className="services__card-title">{title}</h4>
+                <p className="services__card-desc">{desc}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Advisory Services ────────────────────────────────── */}
+        <div className="services__group">
+          <h3 className="services__group-label">Advisory Services</h3>
+          <div className="services__grid services__grid--2">
+            {ADVISORY_SERVICES.map(({ icon: Icon, title, desc }) => (
+              <article className="services__card services__card--advisory" key={title}>
+                <div className="services__icon services__icon--advisory">
+                  <Icon size={22} strokeWidth={1.75} />
+                </div>
+                <h4 className="services__card-title">{title}</h4>
+                <p className="services__card-desc">{desc}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
