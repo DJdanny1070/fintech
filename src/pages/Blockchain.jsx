@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { findHashesBySha, getRecentHashes, getHashesByEntity } from "../services/hashService";
+import { useState, useEffect, useMemo } from "react";
+import { findHashesBySha, getRecentHashes, getHashesByEntity, searchHashes } from "../services/hashService";
 import { getProduct, getProducts } from "../services/productService";
 import { getProfileByEmail } from "../services/profileService";
 import "./Dashboard.css";
@@ -10,11 +10,14 @@ function shorten(h) {
   return `${h.slice(0,8)}...${h.slice(-8)}`;
 }
 
-function copyToClipboard(text) {
-  if (!text) return;
-  navigator.clipboard?.writeText(text).then(() => {
-    // noop
-  }).catch(() => {});
+async function copyToClipboard(text) {
+  if (!text) return false;
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function Blockchain() {
@@ -24,6 +27,8 @@ function Blockchain() {
   const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 6;
 
   useEffect(() => {
     let mounted = true;
@@ -39,9 +44,10 @@ function Blockchain() {
     setLoading(true);
     setError("");
     setResults([]);
+    setPage(1);
     try {
       if (type === "hash") {
-        const res = await findHashesBySha(query);
+        const res = await searchHashes(query, 50);
         setResults(res || []);
       } else if (type === "product") {
         // Try id first
@@ -102,6 +108,13 @@ function Blockchain() {
 
   const toast = useToast();
 
+  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const visibleResults = useMemo(() => {
+    const start = (safePage - 1) * PAGE_SIZE;
+    return results.slice(start, start + PAGE_SIZE);
+  }, [results, safePage]);
+
   return (
     <div>
       <div className="page-header">
@@ -139,24 +152,41 @@ function Blockchain() {
           ) : results.length === 0 ? (
             <div style={{textAlign:"center",padding:"var(--sp-6)",color:"var(--text-muted)"}}>No matching records.</div>
           ) : (
-            <table className="data-table">
-              <thead>
-                <tr><th>Hash</th><th>Entity</th><th>Entity ID</th><th>Timestamp</th><th></th></tr>
-              </thead>
-              <tbody>
-                {results.map(r => (
-                  <tr key={r.id}>
-                    <td style={{fontFamily:'monospace',fontSize:13}}>{shorten(r.sha256_hash)}</td>
-                    <td>{r.entity_type}</td>
-                    <td style={{fontFamily:'monospace'}}>{r.entity_id}</td>
-                    <td style={{color:'var(--text-muted)'}}>{new Date(r.created_at).toLocaleString()}</td>
-                    <td style={{textAlign:'right'}}>
-                      <button className="btn btn-ghost btn-sm" onClick={() => { copyToClipboard(r.sha256_hash); toast.success('Copied'); }}>Copy</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <>
+              <table className="data-table">
+                <thead>
+                  <tr><th>Hash</th><th>Entity Type</th><th>Entity ID</th><th>Timestamp</th><th></th></tr>
+                </thead>
+                <tbody>
+                  {visibleResults.map(r => (
+                    <tr key={r.id}>
+                      <td style={{fontFamily:'monospace',fontSize:13}}>{shorten(r.sha256_hash)}</td>
+                      <td>
+                        <span className="badge badge-gray">{r.entity_type}</span>
+                      </td>
+                      <td style={{fontFamily:'monospace'}}>{r.entity_id}</td>
+                      <td style={{color:'var(--text-muted)'}}>{new Date(r.created_at).toLocaleString()}</td>
+                      <td style={{textAlign:'right', display:'flex', justifyContent:'flex-end', gap:8}}>
+                        <span className="status-badge status-badge--verified">Verified</span>
+                        <button className="btn btn-ghost btn-sm" onClick={async () => {
+                          const ok = await copyToClipboard(r.sha256_hash);
+                          toast.success(ok ? 'Hash copied' : 'Copy failed');
+                        }}>Copy</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:'var(--sp-4)',flexWrap:'wrap',gap:'var(--sp-3)'}}>
+                <div style={{color:'var(--text-muted)',fontSize:13}}>
+                  Showing {((safePage - 1) * PAGE_SIZE) + 1}-{Math.min(safePage * PAGE_SIZE, results.length)} of {results.length}
+                </div>
+                <div style={{display:'flex',gap:'var(--sp-2)'}}>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={safePage === 1}>Previous</button>
+                  <button className="btn btn-ghost btn-sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={safePage === totalPages}>Next</button>
+                </div>
+              </div>
+            </>
           )}
         </div>
 
@@ -170,13 +200,18 @@ function Blockchain() {
           ) : (
             <div style={{display:'grid',gap:8}}>
               {recent.map(h => (
-                <div key={h.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:8,border:'1px solid var(--border)',borderRadius:8}}>
-                  <div style={{display:'flex',flexDirection:'column'}}>
+                <div key={h.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:10,border:'1px solid var(--border)',borderRadius:8,gap:8}}>
+                  <div style={{display:'flex',flexDirection:'column',minWidth:0}}>
                     <div style={{fontFamily:'monospace',fontSize:13}}>{shorten(h.sha256_hash)}</div>
-                    <div style={{fontSize:12,color:'var(--text-muted)'}}>{h.entity_type} · {h.entity_id}</div>
+                    <div style={{fontSize:12,color:'var(--text-muted)',marginTop:4}}>{h.entity_type} · {h.entity_id}</div>
+                    <div style={{fontSize:12,color:'var(--text-muted)',marginTop:4}}>{new Date(h.created_at).toLocaleString()}</div>
                   </div>
-                  <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                    <button className="btn btn-ghost btn-sm" onClick={() => { copyToClipboard(h.sha256_hash); toast.success('Copied'); }}>Copy</button>
+                  <div style={{display:'flex',gap:8,alignItems:'center',flexShrink:0}}>
+                    <span className="status-badge status-badge--verified">Verified</span>
+                    <button className="btn btn-ghost btn-sm" onClick={async () => {
+                      const ok = await copyToClipboard(h.sha256_hash);
+                      toast.success(ok ? 'Hash copied' : 'Copy failed');
+                    }}>Copy</button>
                   </div>
                 </div>
               ))}

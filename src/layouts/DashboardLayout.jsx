@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../components/common/ToastProvider";
+import { getProducts } from "../services/productService";
+import { searchSellers } from "../services/profileService";
 import "./DashboardLayout.css";
 
 const NAV = [
@@ -43,8 +46,13 @@ const NAV = [
 
 function DashboardLayout() {
   const [collapsed, setCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState({ products: [], sellers: [] });
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const navigate = useNavigate();
   const { profile, logout } = useAuth();
+  const toast = useToast();
 
   const displayName = profile?.full_name || "User";
   const avatarLetter = displayName.charAt(0).toUpperCase();
@@ -52,12 +60,49 @@ function DashboardLayout() {
     ? profile.role.charAt(0).toUpperCase() + profile.role.slice(1)
     : "Member";
 
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+
+    if (!trimmed) {
+      setSearchResults({ products: [], sellers: [] });
+      setIsSearching(false);
+      setHasSearched(false);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      setIsSearching(true);
+      setHasSearched(true);
+
+      try {
+        const [products, sellers] = await Promise.all([
+          getProducts({ search: trimmed }),
+          searchSellers(trimmed, { limit: 5 }),
+        ]);
+
+        setSearchResults({
+          products: (products || []).slice(0, 5),
+          sellers: (sellers || []).slice(0, 5),
+        });
+      } catch (err) {
+        console.error("Global search failed:", err.message);
+        setSearchResults({ products: [], sellers: [] });
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchQuery]);
+
   const handleLogout = async () => {
     try {
       await logout();
+      toast.success("Logout successful");
       navigate("/login");
     } catch (err) {
       console.error("Logout failed:", err.message);
+      toast.error("Logout failed");
     }
   };
 
@@ -111,7 +156,9 @@ function DashboardLayout() {
         <div className="db-sidebar__bottom">
           {!collapsed && (
             <div className="db-sidebar__user">
-              <div className="db-sidebar__avatar">{avatarLetter}</div>
+              <div className="db-sidebar__avatar">{profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt={displayName} />
+              ) : avatarLetter}</div>
               <div className="db-sidebar__user-info">
                 <div className="db-sidebar__user-name">{displayName}</div>
                 <div className="db-sidebar__user-role">{displayRole}</div>
@@ -140,11 +187,62 @@ function DashboardLayout() {
         {/* Topbar */}
         <header className="db-topbar">
           <div className="db-topbar__left">
-            <div className="db-topbar__search">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input placeholder="Search transactions, products..." />
+            <div className="db-topbar__search-wrap">
+              <div className="db-topbar__search">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Search products or sellers..."
+                />
+              </div>
+
+              {hasSearched && (
+                <div className="db-topbar__search-panel" role="dialog" aria-label="Search results">
+                  {isSearching ? (
+                    <div className="db-topbar__search-state">Searching…</div>
+                  ) : (
+                    <>
+                      {searchResults.products.length === 0 && searchResults.sellers.length === 0 ? (
+                        <div className="db-topbar__search-state">No matches found for “{searchQuery.trim()}”.</div>
+                      ) : (
+                        <>
+                          {searchResults.products.length > 0 && (
+                            <div className="db-topbar__search-section">
+                              <div className="db-topbar__search-title">Products</div>
+                              {searchResults.products.map((product) => (
+                                <button
+                                  key={product.id}
+                                  type="button"
+                                  className="db-topbar__search-item"
+                                  onClick={() => navigate(`/marketplace/product/${product.id}`)}
+                                >
+                                  <span>{product.title}</span>
+                                  <small>{product.category || "Product"}</small>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+
+                          {searchResults.sellers.length > 0 && (
+                            <div className="db-topbar__search-section">
+                              <div className="db-topbar__search-title">Sellers</div>
+                              {searchResults.sellers.map((seller) => (
+                                <div key={seller.id} className="db-topbar__search-item db-topbar__search-item--static">
+                                  <span>{seller.full_name || seller.company_name || seller.email}</span>
+                                  <small>{seller.company_name || seller.role || "Seller"}</small>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           <div className="db-topbar__right">
@@ -154,7 +252,9 @@ function DashboardLayout() {
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
             </button>
-            <div className="db-topbar__avatar">{avatarLetter}</div>
+            <div className="db-topbar__avatar">{profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt={displayName} />
+            ) : avatarLetter}</div>
           </div>
         </header>
 

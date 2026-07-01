@@ -67,6 +67,24 @@ export async function getRecentProfiles(limit = 5) {
 }
 
 /**
+ * Search profiles by full name or business name.
+ */
+export async function searchSellers(query, { limit = 6 } = {}) {
+  const trimmed = (query || "").trim();
+  if (!trimmed) return [];
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, company_name, role, email, verification_status, avatar_url")
+    .or(`full_name.ilike.%${trimmed}%,company_name.ilike.%${trimmed}%`)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
  * Get simple counts: users and verified sellers
  */
 export async function getCounts() {

@@ -1,5 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../components/common/ToastProvider";
 
 /**
  * Wraps a route element and redirects unauthenticated users to /login.
@@ -8,6 +10,16 @@ import { useAuth } from "../hooks/useAuth";
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
+  const toast = useToast();
+  const wasAuthenticated = useRef(false);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!isAuthenticated && wasAuthenticated.current) {
+      toast.warning("Session expired");
+    }
+    wasAuthenticated.current = isAuthenticated;
+  }, [isAuthenticated, loading, toast]);
 
   // While the session is being restored, render nothing (avoid flash)
   if (loading) {

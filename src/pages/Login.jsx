@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../components/common/ToastProvider";
 import "./Auth.css";
 
 const FEATURES = [
@@ -14,6 +15,7 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, loginWithGoogle } = useAuth();
+  const toast = useToast();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -29,9 +31,12 @@ function Login() {
     setLoading(true);
     try {
       await login(form.email, form.password);
+      toast.success("Login successful");
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.message || "Login failed. Please check your credentials.");
+      const message = err.message || "Login failed. Please check your credentials.";
+      setError(message);
+      toast.error("Login failed");
     } finally {
       setLoading(false);
     }
@@ -44,7 +49,9 @@ function Login() {
       await loginWithGoogle();
       // OAuth redirect — browser will leave this page
     } catch (err) {
-      setError(err.message || "Google login failed.");
+      const message = err.message || "Google login failed.";
+      setError(message);
+      toast.error("Login failed");
       setGoogleLoading(false);
     }
   };

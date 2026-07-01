@@ -68,6 +68,37 @@ export async function findHashesBySha(query, limit = 50) {
 }
 
 /**
+ * Search hash records by record id or SHA-256 hash.
+ */
+export async function searchHashes(query, limit = 20) {
+  const trimmed = (query || "").trim();
+  if (!trimmed) return [];
+
+  const numericMatch = Number(trimmed);
+  if (!Number.isNaN(numericMatch) && String(numericMatch) === trimmed) {
+    const { data, error } = await supabase
+      .from("hash_records")
+      .select("*")
+      .eq("id", numericMatch)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data ?? [];
+  }
+
+  const { data, error } = await supabase
+    .from("hash_records")
+    .select("*")
+    .ilike("sha256_hash", `%${trimmed}%`)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+/**
  * Get hashes for a specific entity type + id.
  */
 export async function getHashesByEntity(entityType, entityId, limit = 50) {

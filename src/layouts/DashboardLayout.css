@@ -127,6 +127,7 @@
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
+.db-sidebar__avatar img { width: 100%; height: 100%; border-radius: 50%; display: block; object-fit: cover; }
 .db-sidebar__user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 .db-sidebar__user-role { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
 
@@ -147,11 +148,15 @@
   z-index: 10;
 }
 .db-topbar__left { flex: 1; }
+.db-topbar__search-wrap {
+  position: relative;
+  width: min(100%, 420px);
+}
 .db-topbar__search {
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  max-width: 320px;
+  width: 100%;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
@@ -165,6 +170,62 @@
   font-size: 14px; color: var(--text-primary); width: 100%;
 }
 .db-topbar__search input::placeholder { color: var(--text-subtle); }
+.db-topbar__search-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  z-index: 20;
+  overflow: hidden;
+}
+.db-topbar__search-section + .db-topbar__search-section {
+  border-top: 1px solid var(--border);
+}
+.db-topbar__search-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  padding: 10px 12px 4px;
+}
+.db-topbar__search-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+.db-topbar__search-item:hover {
+  background: var(--bg-section);
+}
+.db-topbar__search-item span {
+  font-size: 13px;
+  font-weight: 600;
+}
+.db-topbar__search-item small {
+  color: var(--text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.db-topbar__search-item--static {
+  cursor: default;
+}
+.db-topbar__search-state {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
 .db-topbar__right {
   display: flex; align-items: center; gap: var(--sp-4);
 }
@@ -185,6 +246,7 @@
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
 }
+.db-topbar__avatar img { width: 100%; height: 100%; border-radius: 50%; display: block; object-fit: cover; }
 
 .db-content {
   padding: var(--sp-8) var(--sp-6);

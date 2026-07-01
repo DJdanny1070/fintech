@@ -44,7 +44,11 @@ export async function getTransactionsForUser(userId, limit = 50) {
     .from("transactions")
     .select(
       `*,
-      counterparty:profiles(id,full_name,email)
+      counterparty:profiles!transactions_counterparty_id_fkey(
+        id,
+        full_name,
+        email
+      )
     `
     )
     .eq("user_id", userId)
@@ -61,7 +65,19 @@ export async function getTransactionsForUser(userId, limit = 50) {
 export async function getRecentTransactions(limit = 10) {
   const { data, error } = await supabase
     .from("transactions")
-    .select(`*, counterparty:profiles(id,full_name,email)`)
+    .select(`
+      *,
+      user:profiles!transactions_user_id_fkey(
+          id,
+          full_name,
+          email
+      ),
+      counterparty:profiles!transactions_counterparty_id_fkey(
+          id,
+          full_name,
+          email
+      )
+  `)
     .order("created_at", { ascending: false })
     .limit(limit);
 
