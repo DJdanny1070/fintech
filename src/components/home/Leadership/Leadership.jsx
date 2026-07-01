@@ -1,11 +1,11 @@
 import "./Leadership.css";
-import founderImg from "../../../assets/images/team/founder.png";
-import cofounderImg from "../../../assets/images/team/cofounder.png";
-import advisorImg from "../../../assets/images/team/advisor.png";
+import founderImg from "../../../assets/images/team/image.png";
+import cofounderImg from "../../../assets/images/team/image copy.png";
+import advisorImg from "../../../assets/images/team/wahallal.png";
 
 const TEAM = [
   {
-    photo: founderImg,
+    photo: cofounderImg,
     name: "Dr. S. M. Wasiullah",
     role: "Founder",
     highlights: [
@@ -16,7 +16,7 @@ const TEAM = [
     ],
   },
   {
-    photo: cofounderImg,
+    photo: advisorImg,
     name: "Mr. Ishtiyaq Nadeem",
     role: "Co-Founder",
     highlights: [
@@ -27,7 +27,7 @@ const TEAM = [
     ],
   },
   {
-    photo: advisorImg,
+    photo: founderImg,
     name: "Mr. Sudheer",
     role: "Advisor – Technology Development",
     highlights: [
