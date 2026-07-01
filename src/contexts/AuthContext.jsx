@@ -26,6 +26,10 @@ export function AuthProvider({ children }) {
         getProfile(userId),
         getWallet(userId),
       ]);
+      // Append cache-busting timestamp to avatar URL so header updates immediately
+      if (prof && prof.avatar_url) {
+        prof.avatar_url = prof.avatar_url + (prof.avatar_url.includes("?") ? "&" : "?") + `t=${Date.now()}`;
+      }
       setProfile(prof);
       setWallet(wal);
     } catch (err) {
@@ -137,6 +141,9 @@ export function AuthProvider({ children }) {
     try {
       if (user) {
         const prof = await getProfile(user.id);
+        if (prof && prof.avatar_url) {
+          prof.avatar_url = prof.avatar_url + (prof.avatar_url.includes("?") ? "&" : "?") + `t=${Date.now()}`;
+        }
         setProfile(prof);
       }
     } catch (err) {

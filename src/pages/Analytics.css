@@ -48,6 +48,22 @@
 .analytics-bar-chart  { width: 100%; height: 140px; display: block; }
 .analytics-line-chart { width: 100%; height: 130px; display: block; }
 
+/* Chart typography: use a clean sans-serif only for chart text elements */
+.analytics-chart-card .content-card__title,
+.analytics-chart-card .content-card__sub,
+.analytics-chart-card .analytics-legend-label,
+.analytics-chart-card .analytics-legend-pct {
+  font-family: Inter, system-ui, Arial, sans-serif;
+}
+
+/* SVG text inside charts (axis labels, legends rendered in SVG, tooltips inside chart containers) */
+.analytics-chart-card svg text,
+.analytics-chart-card svg .tooltip-text,
+.analytics-chart-card svg .legend-text {
+  font-family: Inter, system-ui, Arial, sans-serif;
+  font-size: 11px; /* keep size consistent with existing spacing */
+}
+
 /* Bottom Row */
 .analytics-bottom-row {
   display: grid; grid-template-columns: 1.5fr 1fr;

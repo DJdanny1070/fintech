@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../components/common/ToastProvider";
 import "./Auth.css";
 
 // Per spec: only Individual and Business
@@ -12,6 +13,7 @@ const ROLES = [
 function Register() {
   const navigate = useNavigate();
   const { register, loginWithGoogle } = useAuth();
+  const toast = useToast();
 
   const [form, setForm] = useState({
     name: "",
@@ -29,9 +31,12 @@ function Register() {
     setLoading(true);
     try {
       await register(form.email, form.password, form.name, form.role);
+      toast.success("Registration successful");
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Registration failed. Please try again.");
+      const message = err.message || "Registration failed. Please try again.";
+      setError(message);
+      toast.error("Registration failed");
     } finally {
       setLoading(false);
     }
@@ -43,7 +48,9 @@ function Register() {
     try {
       await loginWithGoogle();
     } catch (err) {
-      setError(err.message || "Google sign-up failed.");
+      const message = err.message || "Google sign-up failed.";
+      setError(message);
+      toast.error("Registration failed");
       setGoogleLoading(false);
     }
   };

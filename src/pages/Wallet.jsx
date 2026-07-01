@@ -36,6 +36,8 @@ function Wallet() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [txError, setTxError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
   const toast = useToast();
   const [amountInput, setAmountInput] = useState("");
   const [recipientInput, setRecipientInput] = useState("");
@@ -69,6 +71,82 @@ function Wallet() {
     toast.success(msg);
   };
 
+  const loadTransactions = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const txs = await getTransactionsForUser(user.id, 50);
+      setTransactions(txs || []);
+      setTxError("");
+    } catch (err) {
+      console.error("Failed to load transactions:", err.message);
+      setTxError(err.message || "Failed to load transactions");
+      toast.error("We couldn't load your transaction history right now.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleModalOpen = (action) => {
+    setAmountInput("");
+    setRecipientInput("");
+    setNoteInput("");
+    setActionError("");
+    setModal(action);
+  };
+
+  const handleConfirmAction = async () => {
+    try {
+      if (!user) throw new Error("Please log in to continue.");
+      setActionLoading(true);
+      setActionError("");
+
+      if (modal === "Deposit") {
+        const amt = Number(amountInput);
+        if (!amt || amt <= 0) throw new Error("Enter a valid deposit amount.");
+        await depositSimulation(user.id, amt);
+        await refreshWallet();
+        showToast("Deposit completed successfully.");
+      } else if (modal === "Withdraw") {
+        const amt = Number(amountInput);
+        if (!amt || amt <= 0) throw new Error("Enter a valid withdrawal amount.");
+        if (amt > (wallet?.balance || 0)) throw new Error("You do not have enough funds for this withdrawal.");
+        await withdrawSimulation(user.id, amt);
+        await refreshWallet();
+        showToast("Withdrawal completed successfully.");
+      } else if (modal === "Send") {
+        const amt = Number(amountInput);
+        if (!recipientInput.trim()) throw new Error("Enter the recipient email or user ID.");
+        if (!amt || amt <= 0) throw new Error("Enter a valid transfer amount.");
+        if (amt > (wallet?.balance || 0)) throw new Error("Insufficient balance");
+        await transferBetweenUsers(user.id, recipientInput.trim(), amt, noteInput.trim());
+        await refreshWallet();
+        showToast("Transfer successful");
+      }
+
+      await loadTransactions();
+      setModal(null);
+    } catch (err) {
+      console.error(err);
+      const message = err.message || "We couldn't complete that request.";
+      if (message.includes("Recipient not found")) {
+        setActionError("We couldn't find that recipient. Please check the email or user ID and try again.");
+        toast.warning("Recipient not found");
+      } else if (message.includes("Insufficient balance")) {
+        setActionError("You do not have enough funds to complete this action.");
+        toast.warning("Insufficient balance");
+      } else if (message.includes("Failed to fetch") || message.includes("Network")) {
+        setActionError("We couldn't reach the network. Please try again in a moment.");
+        toast.error("Network error");
+      } else {
+        setActionError(message);
+        toast.error(message);
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -96,12 +174,7 @@ function Wallet() {
           <div style={{display:"flex",gap:"var(--sp-3)",marginTop:"var(--sp-5)",flexWrap:"wrap"}}>
             {ACTIONS.map(a => (
                 <button key={a.label} className="btn btn-secondary"
-                  onClick={() => {
-                    setAmountInput("");
-                    setRecipientInput("");
-                    setNoteInput("");
-                    setModal(a.label);
-                  }}>
+                  onClick={() => handleModalOpen(a.label)}>
                   {a.icon} {a.label}
                 </button>
               ))}
@@ -151,7 +224,7 @@ function Wallet() {
             <thead>
               <tr>
                 <th>ID</th><th>Type</th><th>Party</th>
-                <th>Amount</th><th>Status</th><th>Date</th>
+                <th>Amount</th><th>Status</th><th>Blockchain</th><th>Date</th>
               </tr>
             </thead>
             <tbody>
@@ -166,6 +239,11 @@ function Wallet() {
                   <td>
                     <span className={`status-badge status-badge--${tx.status}`}>
                       {tx.status === "verified" ? "✓ Verified" : "⏳ Pending"}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`status-badge ${tx.blockchain_hash ? 'status-badge--verified' : 'status-badge--pending'}`}>
+                      {tx.blockchain_hash ? "Verified" : "Pending"}
                     </span>
                   </td>
                   <td style={{color:"var(--text-muted)"}}>{new Date(tx.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}</td>
@@ -228,42 +306,12 @@ function Wallet() {
                   </div>
                 </>
               )}
+              {actionError && <div className="auth-error">{actionError}</div>}
               <div style={{display:"flex",gap:12}}>
-                <button className="btn btn-primary auth-submit" onClick={async () => {
-                  try {
-                    if (!user) throw new Error('Please log in');
-                    if (modal === 'Deposit') {
-                      const amt = Number(amountInput);
-                      if (!amt || amt <= 0) throw new Error('Enter a valid amount');
-                      await depositSimulation(user.id, amt);
-                      await refreshWallet();
-                      showToast('Deposit simulated');
-                    } else if (modal === 'Withdraw') {
-                      const amt = Number(amountInput);
-                      if (!amt || amt <= 0) throw new Error('Enter a valid amount');
-                      await withdrawSimulation(user.id, amt);
-                      await refreshWallet();
-                      showToast('Withdraw simulated');
-                    } else if (modal === 'Send') {
-                      const amt = Number(amountInput);
-                      if (!recipientInput) throw new Error('Enter recipient');
-                      if (!amt || amt <= 0) throw new Error('Enter a valid amount');
-                      await transferBetweenUsers(user.id, recipientInput, amt, noteInput);
-                      await refreshWallet();
-                      showToast('Transfer completed');
-                    }
-                    // reload transactions
-                    const txs = await getTransactionsForUser(user.id, 50);
-                    setTransactions(txs || []);
-                    setModal(null);
-                  } catch (err) {
-                    console.error(err);
-                    showToast(err.message || 'Action failed');
-                  }
-                }}>
-                  Confirm {modal}
+                <button className="btn btn-primary auth-submit" onClick={handleConfirmAction} disabled={actionLoading}>
+                  {actionLoading ? 'Processing...' : `Confirm ${modal}`}
                 </button>
-                <button className="btn btn-ghost" onClick={() => setModal(null)}>Cancel</button>
+                <button className="btn btn-ghost" onClick={() => setModal(null)} disabled={actionLoading}>Cancel</button>
               </div>
             </div>
           </div>

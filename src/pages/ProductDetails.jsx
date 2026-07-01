@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getProduct, getRelatedProducts, createOrder } from "../services/productService";
 import { useToast } from "../components/common/ToastProvider";
@@ -14,6 +14,7 @@ function shortenHash(h) {
 
 function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, profile } = useAuth();
   const toast = useToast();
   const [product, setProduct] = useState(null);
@@ -39,9 +40,19 @@ function ProductDetails() {
         setProduct(p);
         const rel = await getRelatedProducts(p.category, p.id);
         if (!mounted) return;
-        setRelated(rel || []);
+        setRelated((rel || []).slice(0, 4));
       } catch (err) {
-        setError(err.message || "Failed to load product.");
+        const message = err?.message || "Failed to load product.";
+        const isNotFound = err?.code === "PGRST116" || /no rows|not found/i.test(message);
+        if (!mounted) return;
+        setError(isNotFound ? "Product not found." : message);
+        if (/failed to fetch|network/i.test(message)) {
+          toast.error("Network error");
+        } else if (isNotFound) {
+          toast.warning("Product not found");
+        }
+        setProduct(null);
+        setRelated([]);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -62,16 +73,24 @@ function ProductDetails() {
   };
 
   const handleBuy = async () => {
-    if (!user) return toast.info("Please login to buy.");
-    if (product.seller_id === user.id) return toast.error("You cannot buy your own product.");
-    if (profile?.role === "business") return toast.error("Business users cannot place orders.");
+    if (!user) {
+      toast.info("Please log in to continue.");
+      navigate("/login");
+      return;
+    }
+
+    if (product.seller_id === user.id) {
+      toast.error("You cannot buy your own product.");
+      return;
+    }
 
     setPlacing(true);
     try {
       await createOrder({ buyerId: user.id, sellerId: product.seller_id, productId: product.id });
       toast.success("Order created successfully.");
+      navigate("/dashboard");
     } catch (err) {
-      toast.error("Failed to create order: " + (err.message || err));
+      toast.error("Failed to create order: " + (err?.message || err));
     } finally {
       setPlacing(false);
     }
@@ -103,7 +122,8 @@ function ProductDetails() {
     );
   }
 
-  const canBuy = user && product.seller_id !== user.id && profile?.role === "individual";
+  const isSeller = Boolean(user && product.seller_id === user.id);
+  const canBuy = Boolean(user) && !isSeller;
 
   return (
     <div>
@@ -114,12 +134,12 @@ function ProductDetails() {
             <p>{product.category || "—"}</p>
           </div>
           <div>
-            {canBuy ? (
-              <button className="btn btn-primary" onClick={handleBuy} disabled={placing}>
-                {placing ? "Placing Order..." : "Buy Now"}
-              </button>
+            {isSeller ? (
+              <span className="status-badge status-badge--pending">Your listing</span>
             ) : (
-              <></>
+              <button className="btn btn-primary" onClick={handleBuy} disabled={placing}>
+                {placing ? "Placing Order..." : canBuy ? "Buy Now" : "Login to Buy"}
+              </button>
             )}
           </div>
         </div>

@@ -52,6 +52,7 @@ function AppRoutes() {
           </Route>
  
           {/* Public product details route */}
+          <Route path="/marketplace/product/:id" element={<ProductDetails />} />
           <Route path="/marketplace/:id" element={<ProductDetails />} />
         </Routes>
         </ToastProvider>

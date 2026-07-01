@@ -4,7 +4,7 @@ import "./Dashboard.css";
 function BarChart({ data, color="#075AD8" }) {
   const max = Math.max(...data.map(d => d.v));
   return (
-    <svg viewBox="0 0 500 110" style={{width:"100%",height:110}} preserveAspectRatio="none">
+    <svg className="analytics-bar-chart" viewBox="0 0 500 110" style={{width:"100%",height:110}} preserveAspectRatio="none">
       <defs>
         <linearGradient id={`bg${color.slice(1)}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.85"/>
@@ -32,7 +32,7 @@ function LineChart({ data, color="#075AD8" }) {
   const pts = data.map((d,i) => `${(i/(data.length-1))*(W-20)+10},${H-12-((d.v/max)*(H-24))}`).join(" ");
   const area = `10,${H} ` + pts + ` ${W-10},${H}`;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",height:90}} preserveAspectRatio="none">
+    <svg className="analytics-line-chart" viewBox={`0 0 ${W} ${H}`} style={{width:"100%",height:90}} preserveAspectRatio="none">
       <defs>
         <linearGradient id={`lf${color.slice(1)}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.12"/>
@@ -99,7 +99,7 @@ function Analytics() {
       </div>
 
       <div className="two-col" style={{marginBottom:"var(--sp-5)"}}>
-        <div className="content-card">
+        <div className="content-card analytics-chart-card">
           <div className="content-card__header">
             <div>
               <div className="content-card__title">Monthly Revenue</div>

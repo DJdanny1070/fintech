@@ -21,7 +21,7 @@ export async function getProducts({ search = "", category = "" } = {}) {
 
   if (search) {
     query = query.or(
-      `title.ilike.%${search}%,description.ilike.%${search}%`
+      `title.ilike.%${search}%,description.ilike.%${search}%,category.ilike.%${search}%`
     );
   }
 
