@@ -5,7 +5,7 @@ import advisorImg from "../../../assets/images/team/wahallal.png";
 
 const TEAM = [
   {
-    photo: cofounderImg,
+    photo: advisorImg,
     name: "Dr. S. M. Wasiullah",
     role: "Founder",
     highlights: [
@@ -16,7 +16,7 @@ const TEAM = [
     ],
   },
   {
-    photo: advisorImg,
+    photo: founderImg,
     name: "Mr. Ishtiyaq Nadeem",
     role: "Co-Founder",
     highlights: [
@@ -27,7 +27,7 @@ const TEAM = [
     ],
   },
   {
-    photo: founderImg,
+    photo: cofounderImg,
     name: "Mr. Sudheer",
     role: "Advisor – Technology Development",
     highlights: [
